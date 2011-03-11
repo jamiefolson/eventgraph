@@ -8,7 +8,8 @@ public class IntervalWrapperIterator<K extends Comparable<K>> implements Iterato
 
 	public IntervalWrapperIterator(Iterable<K> childIterable) {
 		this.child = childIterable.iterator();
-		this.current = child.next();
+		this.current = null;
+		;
 		this.next = child.next();
 	}
 

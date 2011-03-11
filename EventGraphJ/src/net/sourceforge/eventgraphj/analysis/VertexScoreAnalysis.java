@@ -1,7 +1,5 @@
 package net.sourceforge.eventgraphj.analysis;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,10 +25,9 @@ import edu.uci.ics.jung.graph.Graph;
  * @param <E>
  * @param <R>
  */
-public abstract class VertexScoreAnalysis<V, E, R> extends SimpleNetworkAnalysis<V, E, List<R>> {
+public abstract class VertexScoreAnalysis<V, E, R> implements NetworkAnalysis<V, E, Graph<V, E>, List<R>> {
 
 	final private List<V> nodes;
-	private boolean headerIsPrinted = false;
 
 	/**
 	 * Creates a network analysis that computes the vertex scores for vertices
@@ -42,18 +39,8 @@ public abstract class VertexScoreAnalysis<V, E, R> extends SimpleNetworkAnalysis
 	 * @param output
 	 * @param nodes
 	 */
-	public VertexScoreAnalysis(Writer output, List<V> nodes) {
-		super(output);
-		this.nodes = nodes;
-	}
-
-	/**
-	 * Same as {@code VertexScoreAnalysis(null output, nodes)}
-	 * 
-	 * @param nodes
-	 */
 	public VertexScoreAnalysis(List<V> nodes) {
-		this(null, nodes);
+		this.nodes = nodes;
 	}
 
 	/**
@@ -63,11 +50,11 @@ public abstract class VertexScoreAnalysis<V, E, R> extends SimpleNetworkAnalysis
 	 * @param graph
 	 */
 	public VertexScoreAnalysis(Graph<V, E> graph) {
-		this(null, new ArrayList<V>(graph.getVertices()));
+		this(new ArrayList<V>(graph.getVertices()));
 	}
 
 	@Override
-	protected List<R> doAnalysis(Graph<V, E> graph) {
+	public List<R> analyze(Graph<V, E> graph) {
 		VertexScorer<V, R> scorer = createScorer(graph);
 		List<R> values = new ArrayList<R>();
 		for (V vertex : nodes) {
@@ -85,36 +72,6 @@ public abstract class VertexScoreAnalysis<V, E, R> extends SimpleNetworkAnalysis
 		}
 
 		return values;
-	}
-
-	public void printHeader(Writer output) throws IOException {
-		if (headerIsPrinted)
-			System.err.println("Warning: Header printed twice");
-		int i = 0;
-		output.write(nodes.get(i).toString());
-		for (i = 1; i < nodes.size(); i++) {
-			output.write(", " + nodes.get(i).toString());
-		}
-		output.write("\n");
-		this.headerIsPrinted = true;
-
-	}
-
-	protected void writeResult(List<R> result, Writer output) throws IOException {
-		if (!headerIsPrinted) {
-			printHeader(output);
-
-		}
-		String prepend = "";
-		for (R val : result) {
-			if (val == null)
-				output.write(prepend + "NULL");
-			else
-				output.write(prepend + val.toString());
-			prepend = ", ";
-		}
-		output.write("\n");
-
 	}
 
 	public abstract VertexScorer<V, R> createScorer(Graph<V, E> graph);

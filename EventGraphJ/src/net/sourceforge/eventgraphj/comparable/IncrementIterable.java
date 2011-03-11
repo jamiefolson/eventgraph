@@ -66,4 +66,11 @@ public abstract class IncrementIterable<K extends Comparable<K>> implements Iter
 			}
 		};
 	}
+
+	public static void main(String[] args) {
+		IncrementIterable<Long> test = IncrementIterable.fromLong(10l, 100l, 25l);
+		for (Long t : test) {
+			System.out.println(t);
+		}
+	}
 }

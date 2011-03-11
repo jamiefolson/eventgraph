@@ -1,6 +1,5 @@
 package net.sourceforge.eventgraphj.analysis.iterable;
 
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,9 +27,7 @@ public class AggregationComparison<K extends Comparable<K>, V, E> extends
         IterableNetworkAnalysis<K, V, E, List<Double>> {
 	protected Iterable<Interval<K>> smallIntervalIterable;
 	protected Iterable<Interval<K>> largeIntervalIterable;
-	protected Iterator<Interval<K>> smallIntervalIterator;
-	protected K stopSmall, startSmall;
-	protected Interval<K> smallInterval;
+
 	protected NetworkComparison<V, EdgeEntry<K, E>, NavigableGraph<K, V, E>> compare;
 
 	/**
@@ -46,8 +43,8 @@ public class AggregationComparison<K extends Comparable<K>, V, E> extends
 	 *            recording
 	 */
 	public AggregationComparison(Iterable<Interval<K>> smallIntervals, Iterable<Interval<K>> largeIntervals,
-	        NetworkComparison<V, EdgeEntry<K, E>, NavigableGraph<K, V, E>> compare, Writer output) {
-		super(largeIntervals, output);
+	        NetworkComparison<V, EdgeEntry<K, E>, NavigableGraph<K, V, E>> compare) {
+		super(largeIntervals);
 		this.smallIntervalIterable = smallIntervals;
 		this.largeIntervalIterable = largeIntervals;
 		this.compare = compare;
@@ -55,13 +52,16 @@ public class AggregationComparison<K extends Comparable<K>, V, E> extends
 
 	@Override
 	protected List<Double> doSubAnalysis(NavigableGraph<K, V, E> graph, K start, K stop) {
-		this.smallIntervalIterator = this.smallIntervalIterable.iterator();
-		smallInterval = this.smallIntervalIterator.next();
+		Iterator<Interval<K>> smallIntervalIterator;
+		K stopSmall, startSmall;
+		Interval<K> smallInterval;
+		smallIntervalIterator = this.smallIntervalIterable.iterator();
+		smallInterval = smallIntervalIterator.next();
 		while (smallInterval.getFinish().compareTo(start) <= 0) {
-			smallInterval = this.smallIntervalIterator.next();
+			smallInterval = smallIntervalIterator.next();
 		}
-		this.startSmall = smallInterval.getStart();
-		this.stopSmall = smallInterval.getFinish();
+		startSmall = smallInterval.getStart();
+		stopSmall = smallInterval.getFinish();
 		if (startSmall.compareTo(start) < 0) // if next interval starts too soon, move it back to avoid errors
 			startSmall = start;
 		List<Double> comparisons = new ArrayList<Double>();
@@ -74,9 +74,9 @@ public class AggregationComparison<K extends Comparable<K>, V, E> extends
 			//System.out.println("Compare Result: " + compareResult);
 			comparisons.add(compareResult);
 			//System.out.println("Compare Results: " + comparisons.toString());
-			smallInterval = this.smallIntervalIterator.next();
-			this.startSmall = smallInterval.getStart();
-			this.stopSmall = smallInterval.getFinish();
+			smallInterval = smallIntervalIterator.next();
+			startSmall = smallInterval.getStart();
+			stopSmall = smallInterval.getFinish();
 		}
 		//System.out.println("Compare Results: " + comparisons.toString());
 		return comparisons;

@@ -13,8 +13,8 @@ import edu.uci.ics.jung.graph.Graph;
  * @param <E>
  * @param <G>
  */
-public interface NetworkAnalysis<V, E, G extends Graph<V, E>> {
+public interface NetworkAnalysis<V, E, G extends Graph<V, E>, R> {
 
-	public void analyze(G graph);
+	public R analyze(G graph);
 
 }

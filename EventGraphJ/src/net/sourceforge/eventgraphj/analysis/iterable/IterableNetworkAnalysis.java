@@ -1,13 +1,9 @@
 package net.sourceforge.eventgraphj.analysis.iterable;
 
-import java.io.IOException;
-import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sourceforge.eventgraphj.analysis.AbstractNetworkAnalysis;
 import net.sourceforge.eventgraphj.analysis.NetworkAnalysis;
 import net.sourceforge.eventgraphj.comparable.EdgeEntry;
 import net.sourceforge.eventgraphj.comparable.IncrementIterable;
@@ -32,80 +28,50 @@ import edu.uci.ics.jung.algorithms.generators.random.KleinbergSmallWorldGenerato
  * @param <E>
  * @param <R>
  */
-public abstract class IterableNetworkAnalysis<K extends Comparable<K>, V, E, R> extends
-        AbstractNetworkAnalysis<V, EdgeEntry<K, E>, NavigableGraph<K, V, E>, List<R>> implements
-        NetworkAnalysis<V, EdgeEntry<K, E>, NavigableGraph<K, V, E>> {
+public abstract class IterableNetworkAnalysis<K extends Comparable<K>, V, E, R> implements
+        NetworkAnalysis<V, EdgeEntry<K, E>, NavigableGraph<K, V, E>, List<R>> {
 	Iterable<Interval<K>> iterable;
 	NavigableGraph<K, V, E> graph;
 
 	// protected List<R> results;
 
-	public IterableNetworkAnalysis(Iterable<Interval<K>> iterator, Writer output) {
-		super(output);
+	public IterableNetworkAnalysis(Iterable<Interval<K>> iterator) {
 		this.iterable = iterator;
 	}
 
-	public IterableNetworkAnalysis(Iterable<Interval<K>> iterator) {
-		this(iterator, null);
-	}
-
-	protected List<R> doAnalysis(NavigableGraph<K, V, E> graph) {
+	public List<R> analyze(NavigableGraph<K, V, E> graph) {
 		List<R> results = new ArrayList<R>();
 		Iterator<Interval<K>> iterator = iterable.iterator();
+		K graphStart = graph.getLowerBound();
+		K graphStop = graph.getUpperBound();
 		K start, finish;
 		Interval<K> interval = null;
-		while (iterator.hasNext()) {
-			interval = iterator.next();
-			// System.out.println(interval);
-			//System.out.println("Compare Interval: " + interval.toString());
-			start = interval.getStart();
-			finish = interval.getFinish();
+		interval = iterator.next();
+		if (graphStart != null) {
+			while (interval.getFinish().compareTo(graphStart) <= 0) {
+				interval = iterator.next();
+			}
+		}
+		start = interval.getStart();
+		finish = interval.getFinish();
+		if (graphStart != null && start.compareTo(graphStart) < 0) // if next interval starts too soon, move it back to avoid errors
+			start = graphStart;
+
+		while (finish != null && ((graphStop == null) || (start.compareTo(graphStop) < 0))) {
+			if (graphStop != null && finish.compareTo(graphStop) > 0) // if next interval stops too late, move it to avoid errors
+				finish = graphStop;
+			//System.out.println("Compare " + start + "-" + finish + " within " + graphStart + "-" + graphStop);
 			long t1 = System.nanoTime();
 			R result = doSubAnalysis(graph.subNetwork(start, finish), start, finish);
 			long t2 = System.nanoTime();
 			//System.out.println((t2 - t1) / 1000000000.0);
 			results.add(result);
+			interval = iterator.next();
 
+			start = interval.getStart();
+			finish = interval.getFinish();
 		}
 		return results;
-	}
-
-	final protected void writeResult(List<R> result, Writer output) throws IOException {
-		for (R val : result) {
-			writeResultInstance(val, output);
-			output.write("\n");
-		}
-	}
-
-	protected void writeResultInstance(R result, Writer output) throws IOException {
-		if (result instanceof Collection) {
-			String prepend = "";
-			for (Object val : (Collection) result) {
-				output.write(prepend + val.toString());
-				prepend = ", ";
-			}
-		} else {
-			output.write(result.toString());
-		}
-	}
-
-	public List<R> getResult() {
-		return result;
-	}
-
-	public R subAnalyze(NavigableGraph<K, V, E> graph, K start, K stop) {
-		R result = doSubAnalysis(graph, start, stop);
-		if (result != null && output != null) {
-			try {
-				writeResultInstance(result, output);
-				output.write("\n");
-				output.flush();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		return result;
 	}
 
 	/**
@@ -152,13 +118,13 @@ public abstract class IterableNetworkAnalysis<K extends Comparable<K>, V, E, R> 
 				return graph.getEdgeCount();
 			}
 		};
-		analyze.analyze(graph);
+		List<Integer> results = analyze.analyze(graph);
 		System.out.println("total " + graph.getEdgeCount());
 		System.out.println("pre 5 " + graph.headNetwork(5).getEdgeCount());
 		System.out.println("post 5 " + graph.tailNetwork(5).getEdgeCount());
 		System.out.println("3-7 " + graph.subNetwork(3, 7).getEdgeCount());
 
-		for (int numEdges : analyze.getResult()) {
+		for (int numEdges : results) {
 			System.out.print(numEdges + ", ");
 		}
 	}
