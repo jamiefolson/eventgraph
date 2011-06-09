@@ -95,7 +95,7 @@ public class SnapshotStatistics {
 					poolSize = Integer.parseInt(line.getOptionValue(POOL_SIZE));
 				}
 				final NavigableGraph<Long, ?, ?> comparableGraph = LoadGraph.loadBinaryJungGraph(filename);
-				computeSurvivals(comparableGraph, output, timescale, poolSize);
+				computeStatistics(comparableGraph, output, timescale, poolSize);
 
 			}
 		} catch (ParseException e) {
@@ -105,7 +105,7 @@ public class SnapshotStatistics {
 		System.exit(0);
 	}
 
-	public static <V, E> void computeSurvivals(NavigableGraph<Long, V, E> comparableGraph, String outputBase,
+	public static <V, E> void computeStatistics(NavigableGraph<Long, V, E> comparableGraph, String outputBase,
 	        Long timescale, Integer poolSize) throws IOException {
 
 		ThreadPoolExecutor exec = null;
@@ -123,23 +123,23 @@ public class SnapshotStatistics {
 		System.out.println("first: " + firstDate + "\tlast: " + lastDate);
 		System.out.println("edgecount: " + comparableGraph.getEdgeCount());
 
-		System.out.println("first half edgecount: "
+		/*System.out.println("first half edgecount: "
 		        + comparableGraph.headNetwork((long) (firstDate + (lastDate - firstDate) / 2.0)).getEdgeCount());
 		System.out.println("test head edgecount: " + comparableGraph.headNetwork(12705l).getEdgeCount());
-		System.out.println("test tail edgecount: " + comparableGraph.tailNetwork(-8895l).getEdgeCount());
+		System.out.println("test tail edgecount: " + comparableGraph.tailNetwork(-8895l).getEdgeCount());*/
 		HashSet<Pair<V>> checked = new HashSet<Pair<V>>();
 		for (EdgeEntry<Long, E> edge : comparableGraph.getEdges()) {
 			Pair<V> pair = comparableGraph.getEndpoints(edge);
 			checked.add(pair);
 		}
-		System.out.println(checked.size() + " pairs");
+		//System.out.println(checked.size() + " pairs");
 
 		VertexScorer<V, Integer> scorer = new DegreeScorer<V>(comparableGraph);
 		for (V v : comparableGraph.getVertices()) {
 			Integer score = scorer.getVertexScore(v);
-			System.out.print(v + ":" + score + ", ");
+			//System.out.print(v + ":" + score + ", ");
 		}
-		System.out.println();
+		//System.out.println();
 
 		Long interval = lastDate - firstDate;
 		final long smallestInterval = timescale;
