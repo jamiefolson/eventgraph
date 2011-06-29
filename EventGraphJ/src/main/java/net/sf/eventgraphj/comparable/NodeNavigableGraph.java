@@ -34,8 +34,9 @@ import edu.uci.ics.jung.graph.util.Pair;
  * @param <K>
  * @param <E>
  */
-public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends AbstractNavigableCachedGraph<K, V, E> implements
-        NavigableGraph<K, V, E>, Graph<V, EdgeEntry<K, V, E>>, Serializable {
+public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends
+		AbstractNavigableCachedGraph<K, V, E> implements
+		NavigableGraph<K, V, E>, Graph<V, EdgeEntry<K, V, E>>, Serializable {
 	/**
 	 * 
 	 */
@@ -48,10 +49,12 @@ public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends AbstractN
 	}
 
 	public NodeNavigableGraph(K lowerBound, K upperBound) {
-		this(new SparseMultigraph<V, EdgeEntry<K, V, E>>(), lowerBound, upperBound);
+		this(new SparseMultigraph<V, EdgeEntry<K, V, E>>(), lowerBound,
+				upperBound);
 	}
 
-	public NodeNavigableGraph(Graph<V, EdgeEntry<K, V, E>> graph, K lowerBound, K upperBound) {
+	public NodeNavigableGraph(Graph<V, EdgeEntry<K, V, E>> graph, K lowerBound,
+			K upperBound) {
 		super(graph, lowerBound, upperBound);
 	}
 
@@ -59,16 +62,18 @@ public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends AbstractN
 		super(graph);
 	}
 
-	public NodeNavigableGraph(NodeNavigableGraph<K, V, E> parent, Graph<V, EdgeEntry<K, V, E>> graph, K lowerBound,
-	        K upperBound) {
+	public NodeNavigableGraph(NodeNavigableGraph<K, V, E> parent,
+			Graph<V, EdgeEntry<K, V, E>> graph, K lowerBound, K upperBound) {
 		this(graph, lowerBound, upperBound);
-		for (Entry<V, MultiNavigableMap<K, EdgeEntry<K, V, E>>> nodeEdges : parent.map.entrySet()) {
+		for (Entry<V, MultiNavigableMap<K, EdgeEntry<K, V, E>>> nodeEdges : parent.map
+				.entrySet()) {
 			V fromNode = nodeEdges.getKey();
 			Collection<EdgeEntry<K, V, E>> edges = new ArrayList<EdgeEntry<K, V, E>>();
 
 			if (lowerBound != null) {
 				if (upperBound != null) {
-					edges = nodeEdges.getValue().subMap(lowerBound, upperBound).values();
+					edges = nodeEdges.getValue().subMap(lowerBound, upperBound)
+							.values();
 				} else {
 					edges = nodeEdges.getValue().tailMap(lowerBound).values();
 				}
@@ -79,14 +84,17 @@ public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends AbstractN
 			}
 
 			for (EdgeEntry<K, V, E> edge : edges) {
-				this.cachedGraph.addEdge(edge, fromNode, edge.to, edge.edgetype);
+				this.cachedGraph
+						.addEdge(edge, fromNode, edge.to, edge.edgetype);
 			}
 		}
 
 	}
 
-	public NodeNavigableGraph(NodeNavigableGraph<K, V, E> parent, K lowerBound, K upperBound) {
-		this(parent, new SparseMultigraph<V, EdgeEntry<K, V, E>>(), lowerBound, upperBound);
+	public NodeNavigableGraph(NodeNavigableGraph<K, V, E> parent, K lowerBound,
+			K upperBound) {
+		this(parent, new SparseMultigraph<V, EdgeEntry<K, V, E>>(), lowerBound,
+				upperBound);
 	}
 
 	/*
@@ -99,7 +107,8 @@ public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends AbstractN
 		K firstKey = null;
 		EdgeEntry<K, V, E> firstEdge = null;
 		for (MultiNavigableMap<K, EdgeEntry<K, V, E>> edges : this.map.values()) {
-			if ((firstKey == null) || (edges.firstKey().compareTo(firstKey) < 0)) {
+			if ((firstKey == null)
+					|| (edges.firstKey().compareTo(firstKey) < 0)) {
 				firstEdge = edges.firstEntry().getValue().iterator().next();
 				firstKey = edges.firstKey();
 			}
@@ -138,7 +147,9 @@ public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends AbstractN
 	public K getFirstKey() {
 		K firstKey = null;
 		for (MultiNavigableMap<K, EdgeEntry<K, V, E>> edges : this.map.values()) {
-			if ((firstKey == null) || (edges.firstKey().compareTo(firstKey) < 0)) {
+			if ((firstKey == null)
+					|| (!edges.isEmpty() && edges.firstKey()
+							.compareTo(firstKey) < 0)) {
 				firstKey = edges.firstKey();
 			}
 
@@ -156,7 +167,8 @@ public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends AbstractN
 	public K getLastKey() {
 		K lastKey = null;
 		for (MultiNavigableMap<K, EdgeEntry<K, V, E>> edges : this.map.values()) {
-			if ((lastKey == null) || (edges.lastKey().compareTo(lastKey) > 0)) {
+			if ((lastKey == null)
+					|| (!edges.isEmpty() && edges.lastKey().compareTo(lastKey) > 0)) {
 				lastKey = edges.lastKey();
 			}
 
@@ -203,22 +215,25 @@ public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends AbstractN
 
 	@Override
 	protected boolean addVertexData(V vertex) {
-		if (this.map.put(vertex, new MultiNavigableMap<K, EdgeEntry<K, V, E>>()) != null) {
+		if (this.map
+				.put(vertex, new MultiNavigableMap<K, EdgeEntry<K, V, E>>()) != null) {
 			return true;
 		}
 		return false;
 	}
 
 	@Override
-	protected boolean addEdgeData(EdgeEntry<K, V, E> edge, Pair<? extends V> endpoints, EdgeType edgeType) {
+	protected boolean addEdgeData(EdgeEntry<K, V, E> edge,
+			Pair<? extends V> endpoints, EdgeType edgeType) {
 
-		EdgeEntry<K, V, E> entry = new EdgeEntry<K, V, E>(endpoints.getFirst(), endpoints.getSecond(), edge.getKey(),
-		        edge.getValue(), edgeType);
+		EdgeEntry<K, V, E> entry = new EdgeEntry<K, V, E>(endpoints.getFirst(),
+				endpoints.getSecond(), edge.getKey(), edge.getValue(), edgeType);
 
 		// this should never fail for a multi-map
 		if (this.map.get(endpoints.getFirst()).put(edge.getKey(), entry) == null) {
 			// this means the edge was a duplicate and no new edge was added
-			throw new IllegalArgumentException("Duplicate edge was added, but went undetected.  This shouldn't happen");
+			throw new IllegalArgumentException(
+					"Duplicate edge was added, but went undetected.  This shouldn't happen");
 		}
 
 		return true;
@@ -235,8 +250,10 @@ public class NodeNavigableGraph<K extends Comparable<K>, V, E> extends AbstractN
 
 	@Override
 	protected boolean removeEdgeData(V first, V second, EdgeEntry<K, V, E> edge) {
-		if (this.map.get(first).remove(edge.getKey(),
-		        new EdgeEntry<K, V, E>(first, second, edge.getKey(), edge.getValue(), this.getEdgeType(edge))) != null) {
+		if (this.map.get(first).remove(
+				edge.getKey(),
+				new EdgeEntry<K, V, E>(first, second, edge.getKey(), edge
+						.getValue(), this.getEdgeType(edge))) != null) {
 			return true;
 		}
 		return false;

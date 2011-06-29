@@ -21,10 +21,12 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 
 public class LoadGraph {
 
-	private static Injector injector = Guice.createInjector(new EdgeNavigableModule());
+	private static Injector injector = Guice
+			.createInjector(new EdgeNavigableModule());
 
 	public static <V, K extends Comparable<K>, E> net.sf.eventgraphj.comparable.NavigableGraph<K, V, E> loadBinaryJungGraph(
-	        String file, Class<K> keyType, Class<V> vertexType, Class<E> edgeType) {
+			String file, Class<K> keyType, Class<V> vertexType,
+			Class<E> edgeType) {
 
 		FileInputStream fis = null;
 		ObjectInputStream in = null;
@@ -34,8 +36,8 @@ public class LoadGraph {
 			in = new ObjectInputStream(fis);
 			graph = (NavigableGraph<K, V, E>) in.readObject();
 			in.close();
-			System.out.println("loaded graph: " + graph.getVertexCount() + " vertices, " + graph.getEdgeCount()
-			        + " edges");
+			System.out.println("loaded graph: " + graph.getVertexCount()
+					+ " vertices, " + graph.getEdgeCount() + " edges");
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			return null;
@@ -58,8 +60,8 @@ public class LoadGraph {
 			in = new ObjectInputStream(fis);
 			graph = (NavigableGraph) in.readObject();
 			in.close();
-			System.out.println("loaded graph: " + graph.getVertexCount() + " vertices, " + graph.getEdgeCount()
-			        + " edges");
+			System.out.println("loaded graph: " + graph.getVertexCount()
+					+ " vertices, " + graph.getEdgeCount() + " edges");
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			return null;
@@ -72,21 +74,28 @@ public class LoadGraph {
 		return graph;
 	}
 
-	public static <V> net.sf.eventgraphj.comparable.NavigableGraph<Long, V, String> loadCsvGraph(String filename,
-	        int fromColumn, int toColumn, int dateColumn, SimpleDateFormat dateFormat, Class<V> vertexType,
-	        boolean hasHeader, String separatorStr) throws IllegalArgumentException, InstantiationException,
-	        IllegalAccessException, InvocationTargetException, FileNotFoundException, SecurityException,
-	        NoSuchMethodException, ParseException {
-		return loadCsvGraph(injector, filename, fromColumn, toColumn, dateColumn, dateFormat, vertexType, hasHeader,
-		        separatorStr);
+	public static <V> net.sf.eventgraphj.comparable.NavigableGraph<Long, V, String> loadCsvGraph(
+			String filename, int fromColumn, int toColumn, int dateColumn,
+			SimpleDateFormat dateFormat, Class<V> vertexType,
+			boolean hasHeader, String separatorStr)
+			throws IllegalArgumentException, InstantiationException,
+			IllegalAccessException, InvocationTargetException,
+			FileNotFoundException, SecurityException, NoSuchMethodException,
+			ParseException {
+		return loadCsvGraph(injector, filename, fromColumn, toColumn,
+				dateColumn, dateFormat, vertexType, hasHeader, separatorStr);
 	}
 
-	public static <V> net.sf.eventgraphj.comparable.NavigableGraph<Long, V, String> loadCsvGraph(Injector inject,
-	        String filename, int fromColumn, int toColumn, int dateColumn, SimpleDateFormat dateFormat,
-	        Class<V> vertexType, boolean hasHeader, String separatorStr) throws IllegalArgumentException,
-	        InstantiationException, IllegalAccessException, InvocationTargetException, FileNotFoundException,
-	        SecurityException, NoSuchMethodException, ParseException {
-		DyadNavigableGraph<Long, V, String> graph = inject.getInstance(DyadNavigableGraph.class);
+	public static <V> net.sf.eventgraphj.comparable.NavigableGraph<Long, V, String> loadCsvGraph(
+			Injector inject, String filename, int fromColumn, int toColumn,
+			int dateColumn, SimpleDateFormat dateFormat, Class<V> vertexType,
+			boolean hasHeader, String separatorStr)
+			throws IllegalArgumentException, InstantiationException,
+			IllegalAccessException, InvocationTargetException,
+			FileNotFoundException, SecurityException, NoSuchMethodException,
+			ParseException {
+		NavigableGraph<Long, V, String> graph = inject
+				.getInstance(NavigableGraph.class);
 
 		Constructor<V> contructVertex = vertexType.getConstructor(String.class);
 		int count = 0;
@@ -117,14 +126,14 @@ public class LoadGraph {
 					Date date = dateFormat.parse(dateString);
 					dateLong = date.getTime();
 				} catch (ParseException e) {
-					throw new ParseException("Failed to parse value '" + dateString + "' as Date on line: " + count,
-					        count);
+					throw new ParseException("Failed to parse value '"
+							+ dateString + "' as Date on line: " + count, count);
 				}
 			} else {
 				dateLong = Long.parseLong(dateString);
 				if (dateLong == null) {
-					throw new ParseException("Failed to parse value '" + dateString + "' as long on line: " + count,
-					        count);
+					throw new ParseException("Failed to parse value '"
+							+ dateString + "' as long on line: " + count, count);
 				}
 			}
 
@@ -142,7 +151,8 @@ public class LoadGraph {
 	}
 
 	public static <V, K extends Comparable<K>, E> net.sf.eventgraphj.comparable.NavigableGraph<K, V, E> loadDynetmlGraph(
-	        String file, Class<K> keyType, Class<V> vertexType, Class<E> edgeType) {
+			String file, Class<K> keyType, Class<V> vertexType,
+			Class<E> edgeType) {
 		return null;
 	}
 }

@@ -65,6 +65,7 @@ public abstract class AbstractNavigableGraphTest {
 	@Before
 	public void setUpRandomGraph() throws Exception {
 		this.graph = this.injector.getInstance(NavigableGraph.class);
+		System.out.println(this.graph.getClass().getName());
 		this.clearGraph();
 		this.m_EdgeCount = 0;
 		assertTrue(this.graph.addEdge(1, 0, 1, EdgeType.UNDIRECTED));
@@ -116,7 +117,8 @@ public abstract class AbstractNavigableGraphTest {
 	}
 
 	public void clearGraph() {
-		Collection<Integer> vertices = new ArrayList<Integer>(this.graph.getVertices());
+		Collection<Integer> vertices = new ArrayList<Integer>(
+				this.graph.getVertices());
 		for (Integer v : vertices) {
 			this.graph.removeVertex(v);
 		}
@@ -134,9 +136,12 @@ public abstract class AbstractNavigableGraphTest {
 	@Test
 	public void testCounts() {
 		assertEquals("edge count", this.m_EdgeCount, this.graph.getEdgeCount());
-		assertEquals("edges size", this.m_EdgeCount, this.graph.getEdges().size());
-		assertEquals("vertex count", this.m_VertexCount, this.graph.getVertexCount());
-		assertEquals("vertices size", this.m_VertexCount, this.graph.getVertices().size());
+		assertEquals("edges size", this.m_EdgeCount, this.graph.getEdges()
+				.size());
+		assertEquals("vertex count", this.m_VertexCount,
+				this.graph.getVertexCount());
+		assertEquals("vertices size", this.m_VertexCount, this.graph
+				.getVertices().size());
 	}
 
 	@Test
@@ -150,7 +155,8 @@ public abstract class AbstractNavigableGraphTest {
 	public void testRemoveEndVertex() {
 		int vertexCount = this.graph.getVertexCount();
 		int edgeCount = this.graph.getEdgeCount();
-		Collection<EdgeEntry<Integer, Integer, Integer>> incident = this.graph.getIncidentEdges(vertexCount - 1);
+		Collection<EdgeEntry<Integer, Integer, Integer>> incident = this.graph
+				.getIncidentEdges(vertexCount - 1);
 		this.graph.removeVertex(vertexCount - 1);
 		assertEquals(vertexCount - 1, this.graph.getVertexCount());
 		assertEquals(edgeCount - incident.size(), this.graph.getEdgeCount());
@@ -160,7 +166,8 @@ public abstract class AbstractNavigableGraphTest {
 	public void testRemoveMiddleVertex() {
 		int vertexCount = this.graph.getVertexCount();
 		int edgeCount = this.graph.getEdgeCount();
-		Collection<EdgeEntry<Integer, Integer, Integer>> incident = this.graph.getIncidentEdges(vertexCount / 2);
+		Collection<EdgeEntry<Integer, Integer, Integer>> incident = this.graph
+				.getIncidentEdges(vertexCount / 2);
 		this.graph.removeVertex(vertexCount / 2);
 		assertEquals(vertexCount - 1, this.graph.getVertexCount());
 		assertEquals(edgeCount - incident.size(), this.graph.getEdgeCount());
@@ -181,7 +188,7 @@ public abstract class AbstractNavigableGraphTest {
 	@Test
 	public void testRemoveEdge() {
 		ArrayList<EdgeEntry<Integer, Integer, Integer>> edgeList = new ArrayList<EdgeEntry<Integer, Integer, Integer>>(
-		        this.graph.getEdges());
+				this.graph.getEdges());
 		int edgeCount = this.graph.getEdgeCount();
 		this.graph.removeEdge(edgeList.get(edgeList.size() / 2));
 		assertEquals("count - 1", edgeCount - 1, this.graph.getEdgeCount());
@@ -190,21 +197,24 @@ public abstract class AbstractNavigableGraphTest {
 	@Test
 	public void testGetInOutEdgesRandomGraph() {
 		for (Integer v : this.graph.getVertices()) {
-			Collection<EdgeEntry<Integer, Integer, Integer>> incident = this.graph.getIncidentEdges(v);
-			Collection<EdgeEntry<Integer, Integer, Integer>> in = this.graph.getInEdges(v);
-			Collection<EdgeEntry<Integer, Integer, Integer>> out = this.graph.getOutEdges(v);
+			Collection<EdgeEntry<Integer, Integer, Integer>> incident = this.graph
+					.getIncidentEdges(v);
+			Collection<EdgeEntry<Integer, Integer, Integer>> in = this.graph
+					.getInEdges(v);
+			Collection<EdgeEntry<Integer, Integer, Integer>> out = this.graph
+					.getOutEdges(v);
 			assertTrue(incident.containsAll(in));
 			assertTrue(incident.containsAll(out));
 			for (EdgeEntry<Integer, Integer, Integer> e : in) {
 				if (out.contains(e)) {
 					assertTrue("in edge in out edges but not undirected",
-					        this.graph.getEdgeType(e) == EdgeType.UNDIRECTED);
+							this.graph.getEdgeType(e) == EdgeType.UNDIRECTED);
 				}
 			}
 			for (EdgeEntry<Integer, Integer, Integer> e : out) {
 				if (in.contains(e)) {
 					assertTrue("out edge in in edges but not undirected",
-					        this.graph.getEdgeType(e) == EdgeType.UNDIRECTED);
+							this.graph.getEdgeType(e) == EdgeType.UNDIRECTED);
 				}
 			}
 		}
@@ -212,7 +222,8 @@ public abstract class AbstractNavigableGraphTest {
 
 	@Test
 	public void testSubnetwork() {
-		NavigableGraph<Integer, Integer, Integer> subgraph = this.graph.subNetwork(2, 7);
+		NavigableGraph<Integer, Integer, Integer> subgraph = this.graph
+				.subNetwork(2, 7);
 		assertEquals(5, subgraph.getEdgeCount());
 		assertEquals("to 0", 1, subgraph.getInEdges(0).size());
 		assertEquals("from 0", 2, subgraph.getOutEdges(0).size());
@@ -221,7 +232,8 @@ public abstract class AbstractNavigableGraphTest {
 
 	@Test
 	public void testTailnetwork() {
-		NavigableGraph<Integer, Integer, Integer> subgraph = this.graph.tailNetwork(5);
+		NavigableGraph<Integer, Integer, Integer> subgraph = this.graph
+				.tailNetwork(5);
 		assertEquals(13, subgraph.getEdgeCount());
 		assertEquals("to 0", 0, subgraph.getInEdges(0).size());
 		assertEquals("from 0", 2, subgraph.getOutEdges(0).size());
@@ -230,10 +242,18 @@ public abstract class AbstractNavigableGraphTest {
 
 	@Test
 	public void testHeadnetwork() {
-		NavigableGraph<Integer, Integer, Integer> subgraph = this.graph.headNetwork(5);
+		NavigableGraph<Integer, Integer, Integer> subgraph = this.graph
+				.headNetwork(5);
 		assertEquals(4, subgraph.getEdgeCount());
 		assertEquals("to 0", 2, subgraph.getInEdges(0).size());
 		assertEquals("from 0", 2, subgraph.getOutEdges(0).size());
 		assertEquals("from 4", 0, subgraph.getOutEdges(4).size());
+	}
+
+	@Test
+	public void testGetKey() {
+		assertEquals(1, this.graph.getFirstKey().intValue());
+		assertEquals(17, this.graph.getLastKey().intValue());
+
 	}
 }
