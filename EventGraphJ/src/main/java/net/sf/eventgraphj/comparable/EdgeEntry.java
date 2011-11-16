@@ -7,6 +7,19 @@ import edu.uci.ics.jung.graph.util.EdgeType;
 public class EdgeEntry<K extends Comparable<K>, V, E> extends EdgePair<K, E> implements Serializable {
 	private static final long serialVersionUID = 1L;
 	protected final V from, to;
+
+	public V getFrom() {
+		return from;
+	}
+
+	public V getTo() {
+		return to;
+	}
+
+	public EdgeType getEdgetype() {
+		return edgetype;
+	}
+
 	protected final EdgeType edgetype;
 
 	public EdgeEntry(V from, V to, K key, E edge, EdgeType edgeType) {
