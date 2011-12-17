@@ -39,11 +39,9 @@ import edu.uci.ics.jung.graph.util.Pair;
  * @param <K>
  * @param <E>
  */
-public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
-		extends BaseNavigableGraph<K, V, E> implements NavigableGraph<K, V, E>,
-		Graph<V, EdgeEntry<K, V, E>>, Serializable {
-	public static class DyadEdgeMap<K extends Comparable<K>, V, E> implements
-			Serializable {
+public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E> extends BaseNavigableGraph<K, V, E>
+        implements NavigableGraph<K, V, E>, Graph<V, EdgeEntry<K, V, E>>, Serializable {
+	public static class DyadEdgeMap<K extends Comparable<K>, V, E> implements Serializable {
 		private static final long serialVersionUID = 1L;
 		protected final NavigableMap<K, EdgeEntry<K, V, E>> map;
 		protected final V from, to;
@@ -64,8 +62,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 			if (other instanceof DyadEdgeMap) {
 				try {
 					DyadEdgeMap<K, V, E> edge = (DyadEdgeMap<K, V, E>) other;
-					if (this.from.equals(this.from) && this.to.equals(this.to)
-							&& this.map.equals(edge.map)) {
+					if (this.from.equals(this.from) && this.to.equals(this.to) && this.map.equals(edge.map)) {
 						return true;
 					}
 				} catch (ClassCastException e) {
@@ -74,16 +71,20 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 			}
 			return false;
 		}
+
+		public String toString() {
+			return "<DyadEdgeMap:" + from.toString() + "->" + to.toString() + " contains {" + this.map.toString()
+			        + "}>";
+		}
 	}
 
-	public static class DyadNavigableSubGraph<K extends Comparable<K>, V, E>
-			extends AbstractDyadNavigableGraph<K, V, E> {
+	public static class DyadNavigableSubGraph<K extends Comparable<K>, V, E> extends
+	        AbstractDyadNavigableGraph<K, V, E> {
 		private static final long serialVersionUID = 1L;
 		protected final AbstractDyadNavigableGraph<K, V, E> parent;
 		final K start, stop;
 
-		public DyadNavigableSubGraph(
-				AbstractDyadNavigableGraph<K, V, E> parent, K start, K stop) {
+		public DyadNavigableSubGraph(AbstractDyadNavigableGraph<K, V, E> parent, K start, K stop) {
 			super(parent.mapProvider, parent.graphProvider, start, stop);
 			this.parent = parent;
 			this.start = start;
@@ -92,14 +93,16 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 
 			for (DyadEdgeMap<K, V, E> edge : parent.mapGraph.getEdges()) {
 				if (!parent.mapGraph.containsEdge(edge)) {
-					System.err.println("skipping " + edge.toString() + "\n\t"
-							+ edge.hashCode());
+					System.err.println("skipping " + edge.toString() + "\n\t" + edge.hashCode());
 					continue;
 				}
 				Pair<V> endpoints = parent.mapGraph.getEndpoints(edge);
 				EdgeType edgetype = parent.mapGraph.getEdgeType(edge);
 				NavigableMap<K, EdgeEntry<K, V, E>> map = edge.map;
 				if (start != null) {
+					if (start.equals(new Long(1566))) {
+						System.out.println("found it");
+					}
 					if (stop != null) {
 						map = edge.map.subMap(start, true, stop, false);
 					} else {
@@ -112,16 +115,16 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 				}
 				assert (edge != null);
 				assert (endpoints != null);
-				DyadEdgeMap<K, V, E> childEdge = new DyadEdgeMap<K, V, E>(
-						edge.from, edge.to, map);
-				assert (this.mapGraph.addEdge(childEdge, endpoints, edgetype));
-				assert (this.mapGraph.containsEdge(childEdge));
+				DyadEdgeMap<K, V, E> childEdge = new DyadEdgeMap<K, V, E>(edge.from, edge.to, map);
+				boolean success = this.mapGraph.addEdge(childEdge, endpoints, edgetype);
+				assert (success);
+				success = this.mapGraph.containsEdge(childEdge);
+				assert (success);
 			}
 		}
 
 		@Override
-		protected boolean addEdgeMetadata(EdgeEntry<K, V, E> edge,
-				Pair<? extends V> endpoints, EdgeType edgeType) {
+		protected boolean addEdgeMetadata(EdgeEntry<K, V, E> edge, Pair<? extends V> endpoints, EdgeType edgeType) {
 			return this.parent.addEdgeMetadata(edge, endpoints, edgeType);
 		}
 
@@ -192,15 +195,14 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	protected final Comparator<K> comparator = new NullComparator<K>();
 
 	@Inject
-	public AbstractDyadNavigableGraph(MapProvider mapProvider,
-			GraphProvider graphProvider) {
+	public AbstractDyadNavigableGraph(MapProvider mapProvider, GraphProvider graphProvider) {
 		super();
 		this.mapProvider = mapProvider;
 		this.graphProvider = graphProvider;
 	}
 
-	protected AbstractDyadNavigableGraph(MapProvider mapProvider,
-			GraphProvider graphProvider, K lowerBound, K upperBound) {
+	protected AbstractDyadNavigableGraph(MapProvider mapProvider, GraphProvider graphProvider, K lowerBound,
+	        K upperBound) {
 		super(lowerBound, upperBound);
 		this.mapProvider = mapProvider;
 		this.graphProvider = graphProvider;
@@ -213,8 +215,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	 * @return {@code} true iff the graph was modified as a result of this call
 	 */
 	@Override
-	protected boolean addEdge(EdgeEntry<K, V, E> edge,
-			Pair<? extends V> endpoints, EdgeType edgeType) {
+	protected boolean addEdge(EdgeEntry<K, V, E> edge, Pair<? extends V> endpoints, EdgeType edgeType) {
 		V v1 = endpoints.getFirst();
 		V v2 = endpoints.getSecond();
 
@@ -226,8 +227,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 		}
 
 		DyadEdgeMap<K, V, E> edgeMap = null;
-		for (DyadEdgeMap<K, V, E> edgeMapItem : this.mapGraph.findEdgeSet(v1,
-				v2)) {
+		for (DyadEdgeMap<K, V, E> edgeMapItem : this.mapGraph.findEdgeSet(v1, v2)) {
 			if (edgeType.equals(this.mapGraph.getEdgeType(edgeMapItem))) {
 				edgeMap = edgeMapItem;
 			}
@@ -254,11 +254,9 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 		return false;
 	}
 
-	protected abstract boolean addEdgeMetadata(EdgeEntry<K, V, E> edge,
-			Pair<? extends V> endpoints, EdgeType edgeType);
+	protected abstract boolean addEdgeMetadata(EdgeEntry<K, V, E> edge, Pair<? extends V> endpoints, EdgeType edgeType);
 
-	protected DyadEdgeMap<K, V, E> createEdgeNavigableMap(V v1, V v2,
-			EdgeType edgeType) {
+	protected DyadEdgeMap<K, V, E> createEdgeNavigableMap(V v1, V v2, EdgeType edgeType) {
 		NavigableMap<K, EdgeEntry<K, V, E>> map = this.mapProvider.get();
 		DyadEdgeMap<K, V, E> edge = new DyadEdgeMap<K, V, E>(v1, v2, map);
 		return edge;
@@ -271,8 +269,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 
 	@Override
 	public boolean containsEdge(EdgeEntry<K, V, E> edge) {
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.findEdgeSet(
-				this.getSource(edge), this.getDest(edge));
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.findEdgeSet(this.getSource(edge), this.getDest(edge));
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				if (map.map.containsValue(edge)) {
@@ -295,8 +292,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 
 	@Override
 	public EdgeEntry<K, V, E> findEdge(V v1, V v2) {
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.findEdgeSet(v1,
-				v2);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.findEdgeSet(v1, v2);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				if (map.map.size() > 0) {
@@ -310,8 +306,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	@Override
 	public Collection<EdgeEntry<K, V, E>> findEdgeSet(V v1, V v2) {
 		Collection<EdgeEntry<K, V, E>> neighbors = new ArrayList<EdgeEntry<K, V, E>>();
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.findEdgeSet(v1,
-				v2);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.findEdgeSet(v1, v2);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				if (map == null) {
@@ -339,8 +334,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	@Override
 	public int getEdgeCount(EdgeType edge_type) {
 		int count = 0;
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph
-				.getEdges(edge_type);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.getEdges(edge_type);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				count += map.map.size();
@@ -352,8 +346,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	@Override
 	public Collection<EdgeEntry<K, V, E>> getEdges(EdgeType edge_type) {
 		Collection<EdgeEntry<K, V, E>> edges = new ArrayList<EdgeEntry<K, V, E>>();
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph
-				.getEdges(edge_type);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.getEdges(edge_type);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				edges.addAll(map.map.values());
@@ -381,8 +374,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 		K first = null;
 		for (DyadEdgeMap<K, V, E> map : this.mapGraph.getEdges()) {
 			assert (map != null);
-			Iterator<Entry<K, EdgeEntry<K, V, E>>> iterator = map.map
-					.entrySet().iterator();
+			Iterator<Entry<K, EdgeEntry<K, V, E>>> iterator = map.map.entrySet().iterator();
 			K thisFirst = null;
 			Entry<K, EdgeEntry<K, V, E>> thisEntry = null;
 			while (thisFirst == null && iterator.hasNext()) {
@@ -441,15 +433,13 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 		return this.getIncidentEdges(vertex, null, null);
 	}
 
-	public Collection<EdgeEntry<K, V, E>> getIncidentEdges(V vertex, K start,
-			K stop) {
+	public Collection<EdgeEntry<K, V, E>> getIncidentEdges(V vertex, K start, K stop) {
 		Collection<EdgeEntry<K, V, E>> neighbors = new ArrayList<EdgeEntry<K, V, E>>();
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph
-				.getIncidentEdges(vertex);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.getIncidentEdges(vertex);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
-				neighbors.addAll((start != null && stop != null) ? map.map
-						.subMap(start, stop).values() : map.map.values());
+				neighbors.addAll((start != null && stop != null) ? map.map.subMap(start, stop).values() : map.map
+				        .values());
 			}
 		}
 		return neighbors;
@@ -468,8 +458,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	@Override
 	public Collection<EdgeEntry<K, V, E>> getInEdges(V vertex) {
 		Collection<EdgeEntry<K, V, E>> neighbors = new ArrayList<EdgeEntry<K, V, E>>();
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph
-				.getInEdges(vertex);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.getInEdges(vertex);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				neighbors.addAll(map.map.values());
@@ -484,8 +473,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 		K last = null;
 		for (DyadEdgeMap<K, V, E> map : this.mapGraph.getEdges()) {
 			assert (map != null);
-			Iterator<Entry<K, EdgeEntry<K, V, E>>> iterator = map.map
-					.descendingMap().entrySet().iterator();
+			Iterator<Entry<K, EdgeEntry<K, V, E>>> iterator = map.map.descendingMap().entrySet().iterator();
 			K thislast = null;
 			Entry<K, EdgeEntry<K, V, E>> thisEntry = null;
 			while (thislast == null && iterator.hasNext()) {
@@ -538,8 +526,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	@Override
 	public Collection<V> getNeighbors(V vertex) {
 		Collection<V> neighbors = new HashSet<V>();
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph
-				.getIncidentEdges(vertex);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.getIncidentEdges(vertex);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 
@@ -561,16 +548,14 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 		} else if (vertex.equals(second)) {
 			return first;
 		} else {
-			throw new IllegalArgumentException(vertex + " is not incident to "
-					+ edge + " in this graph");
+			throw new IllegalArgumentException(vertex + " is not incident to " + edge + " in this graph");
 		}
 	}
 
 	@Override
 	public Collection<EdgeEntry<K, V, E>> getOutEdges(V vertex) {
 		Collection<EdgeEntry<K, V, E>> neighbors = new ArrayList<EdgeEntry<K, V, E>>();
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph
-				.getOutEdges(vertex);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.getOutEdges(vertex);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				neighbors.addAll(map.map.values());
@@ -587,8 +572,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	@Override
 	public Collection<V> getPredecessors(V vertex) {
 		Collection<V> neighbors = new HashSet<V>();
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph
-				.getInEdges(vertex);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.getInEdges(vertex);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				for (EdgeEntry<K, V, E> edge : map.map.values()) {
@@ -607,8 +591,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	@Override
 	public Collection<V> getSuccessors(V vertex) {
 		Collection<V> neighbors = new HashSet<V>();
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph
-				.getOutEdges(vertex);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.getOutEdges(vertex);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				for (EdgeEntry<K, V, E> edge : map.map.values()) {
@@ -620,8 +603,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	}
 
 	@Override
-	protected Pair<V> getValidatedEndpoints(EdgeEntry<K, V, E> edge,
-			Pair<? extends V> endpoints) {
+	protected Pair<V> getValidatedEndpoints(EdgeEntry<K, V, E> edge, Pair<? extends V> endpoints) {
 		if (edge == null) {
 			throw new IllegalArgumentException("input edge may not be null");
 		}
@@ -630,15 +612,12 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 			throw new IllegalArgumentException("endpoints may not be null");
 		}
 
-		Pair<V> new_endpoints = new Pair<V>(endpoints.getFirst(),
-				endpoints.getSecond());
+		Pair<V> new_endpoints = new Pair<V>(endpoints.getFirst(), endpoints.getSecond());
 		if (this.containsEdge(edge)) {
 			Pair<V> existing_endpoints = this.getEndpoints(edge);
 			if (!existing_endpoints.equals(new_endpoints)) {
-				throw new IllegalArgumentException("edge " + edge
-						+ " already exists in this graph with endpoints "
-						+ existing_endpoints
-						+ " and cannot be added with endpoints " + endpoints);
+				throw new IllegalArgumentException("edge " + edge + " already exists in this graph with endpoints "
+				        + existing_endpoints + " and cannot be added with endpoints " + endpoints);
 			} else {
 				return null;
 			}
@@ -664,17 +643,14 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	@Override
 	public boolean isIncident(V vertex, EdgeEntry<K, V, E> edge) {
 		if (!this.containsVertex(vertex) || !this.containsEdge(edge)) {
-			throw new IllegalArgumentException(
-					"At least one of these not in this graph: " + vertex + ", "
-							+ edge);
+			throw new IllegalArgumentException("At least one of these not in this graph: " + vertex + ", " + edge);
 		}
 		return this.getIncidentEdges(vertex, null, null).contains(edge);
 	}
 
 	@Override
 	public boolean isNeighbor(V v1, V v2) {
-		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.findEdgeSet(v1,
-				v2);
+		Collection<DyadEdgeMap<K, V, E>> maps = this.mapGraph.findEdgeSet(v1, v2);
 		if (maps != null) {
 			for (DyadEdgeMap<K, V, E> map : maps) {
 				SortedMap<K, EdgeEntry<K, V, E>> submap = map.map;
@@ -719,8 +695,8 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E>
 	public String toString() {
 		String out = "NavigableGraph : ";
 		for (EdgeEntry<K, V, E> entry : this.getEdges()) {
-			out = out + "\n\t" + this.getSource(entry).toString() + "-->"
-					+ this.getDest(entry).toString() + " : " + entry.getKey();
+			out = out + "\n\t" + this.getSource(entry).toString() + "-->" + this.getDest(entry).toString() + " : "
+			        + entry.getKey();
 		}
 		return out;
 

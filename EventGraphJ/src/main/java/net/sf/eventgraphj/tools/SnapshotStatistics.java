@@ -5,13 +5,18 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
@@ -20,7 +25,7 @@ import net.sf.eventgraphj.analysis.NetworkAnalysis;
 import net.sf.eventgraphj.analysis.VertexScoreAnalysis;
 import net.sf.eventgraphj.analysis.compare.PoissonNetworkInformation;
 import net.sf.eventgraphj.analysis.iterable.AggregationComparison;
-import net.sf.eventgraphj.analysis.iterable.IterableNetworkAnalysis;
+import net.sf.eventgraphj.analysis.iterable.SimpleAggregationComparison;
 import net.sf.eventgraphj.comparable.EdgeEntry;
 import net.sf.eventgraphj.comparable.IncrementIterable;
 import net.sf.eventgraphj.comparable.Interval;
@@ -36,9 +41,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.math.linear.ArrayRealVector;
+import org.apache.commons.math.linear.RealVector;
 
-import edu.uci.ics.jung.algorithms.scoring.DegreeScorer;
-import edu.uci.ics.jung.algorithms.scoring.VertexScorer;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.util.Pair;
 
@@ -110,13 +115,15 @@ public class SnapshotStatistics {
 		System.exit(0);
 	}
 
-	public static <V, E> void computeStatistics(NavigableGraph<Long, V, E> comparableGraph, String outputBase,
+	public static <V, E> void computeStatistics(final NavigableGraph<Long, V, E> comparableGraph, String outputBase,
 	        Long timescale, Integer poolSize) throws IOException {
 
 		ThreadPoolExecutor exec = null;
+		CompletionService<Map<String, RealVector>> completionService = null;
 		if ((poolSize != null) && (poolSize > 0))
 			exec = new ThreadPoolExecutor(poolSize, poolSize, Long.MAX_VALUE, TimeUnit.NANOSECONDS,
-			        new SynchronousQueue<Runnable>());
+			        new LinkedBlockingQueue<Runnable>());
+		completionService = new ExecutorCompletionService<Map<String, RealVector>>(exec);
 		//(ThreadPoolExecutor) Executors.newFixedThreadPool(POOL_SIZE);
 
 		//System.out.println(exec.getKeepAliveTime(TimeUnit.NANOSECONDS));
@@ -139,12 +146,12 @@ public class SnapshotStatistics {
 		}
 		//System.out.println(checked.size() + " pairs");
 
-		VertexScorer<V, Integer> scorer = new DegreeScorer<V>(comparableGraph);
+		/*VertexScorer<V, Integer> scorer = new DegreeScorer<V>(comparableGraph);
 		for (V v : comparableGraph.getVertices()) {
 			Integer score = scorer.getVertexScore(v);
-			//System.out.print(v + ":" + score + ", ");
+			System.out.print(v + ":" + score + ", ");
 		}
-		//System.out.println();
+		System.out.println();*/
 
 		Long interval = lastDate - firstDate;
 		final long smallestInterval = timescale;
@@ -171,114 +178,173 @@ public class SnapshotStatistics {
 
 			final HashMap<String, Writer> outMap = new HashMap<String, Writer>();
 
-			NetworkAnalysis<V, EdgeEntry<Long, V, E>, NavigableGraph<Long, V, E>, ?> infoAnalyze = new AggregationComparison<Long, V, E>(
-			        innerIterable, iterable, infoLossCompare);
+			NetworkAnalysis<V, EdgeEntry<Long, V, E>, NavigableGraph<Long, V, E>, RealVector> infoAnalyze = new SimpleAggregationComparison<Long, V, E>(
+			        innerIterable, infoLossCompare);
 
 			allAnalyses.addAnalysis("InformationLoss", infoAnalyze);
-			outMap.put("InformationLoss", new FileWriter(new File(outputBase + "_" + (thisinterval) + "-infoloss.txt")));
+			outMap.put("InformationLoss", new FileWriter(new File(outputBase + "_" + (thisinterval) + "_infoloss.txt")));
 
 			//Writer mseoutput = new FileWriter(new File("data/eu_email-bin_" + (thisinterval) + "-mse.txt"));
 			// output = new PrintWriter(System.out);
 
-			IterableNetworkAnalysis<Long, V, E, List<Double>> mseAnalyze = new AggregationComparison<Long, V, E>(
+			NetworkAnalysis<V, EdgeEntry<Long, V, E>, NavigableGraph<Long, V, E>, List<RealVector>> mseAnalyze = new AggregationComparison<Long, V, E>(
 			        iterable, innerIterable, infoLossCompare);
 
 			//allAnalyses.addSubAnalysis(mseAnalyze);
 
 			final List<V> nodes = new ArrayList<V>(comparableGraph.getVertices());
 
-			NetworkAnalysis<V, EdgeEntry<Long, V, E>, Graph<V, EdgeEntry<Long, V, E>>, ?> analysis;
-			IterableNetworkAnalysis<Long, V, E, List> iterAnalyze;
+			NetworkAnalysis<V, EdgeEntry<Long, V, E>, Graph<V, EdgeEntry<Long, V, E>>, RealVector> analysis;
 
 			analysis = VertexScoreAnalysis.newDegreeAnalysis(comparableGraph);
 			allAnalyses.addAnalysis("Degree", analysis);
-			outMap.put("Degree", new FileWriter(new File(outputBase + "_" + (thisinterval) + "-degree.txt")));
+			outMap.put("Degree", new FileWriter(new File(outputBase + "_" + (thisinterval) + "_degree.txt")));
 
 			analysis = VertexScoreAnalysis.newClosenessAnalysis(comparableGraph);
 			allAnalyses.addAnalysis("Closeness", analysis);
-			outMap.put("Closeness", new FileWriter(new File(outputBase + "_" + (thisinterval) + "-closeness.txt")));
+			outMap.put("Closeness", new FileWriter(new File(outputBase + "_" + (thisinterval) + "_closeness.txt")));
 
 			analysis = VertexScoreAnalysis.newBetweennessAnalysis(comparableGraph);
 			allAnalyses.addAnalysis("Betweenness", analysis);
-			outMap.put("Betweenness", new FileWriter(new File(outputBase + "_" + (thisinterval) + "-betweenness.txt")));
+			outMap.put("Betweenness", new FileWriter(new File(outputBase + "_" + (thisinterval) + "_betweenness.txt")));
 
 			analysis = VertexScoreAnalysis.newPageRankAnalysis(comparableGraph);
-			//allAnalyses.addAnalysis("Pagerank", analysis);
-			outMap.put("Pagerank", new FileWriter(new File(outputBase + "_" + (thisinterval) + "-pagerank.txt")));
+			allAnalyses.addAnalysis("Pagerank", analysis);
+			outMap.put("Pagerank", new FileWriter(new File(outputBase + "_" + (thisinterval) + "_pagerank.txt")));
 
-			final Object lock = new Object();
+			int futureCount = 0;
 			for (Interval<Long> currInterval : iterable) {
+
 				final Long start = currInterval.getStart();
 				final Long stop = currInterval.getFinish();
-				final NavigableGraph<Long, V, E> subNet = comparableGraph.subNetwork(start, stop);
-				Runnable worker = new Runnable() {
+				Callable<Map<String, RealVector>> worker = new Callable<Map<String, RealVector>>() {
 
 					@Override
-					public void run() {
-						HashMap<String, ?> results = allAnalyses.analyze(subNet);
-						for (Entry<String, ?> entry : results.entrySet()) {
-							synchronized (lock) {
-								Writer output = outMap.get(entry.getKey());
-								try {
-									output.write(entry.getKey() + ", " + start + ", " + stop + ", ");
-									writeResults(entry.getValue(), output);
-									output.write("\n");
-									output.flush();
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
+					public HashMap<String, RealVector> call() {
+						final NavigableGraph<Long, V, E> subNet = comparableGraph.subNetwork(start, stop);
+						System.out.println("sub network from " + start + " to " + stop + " has "
+						        + subNet.getEdgeCount() + " edges");
 
-							}
+						HashMap<String, RealVector> results = allAnalyses.analyze(subNet);
+						/*for (Entry<String, ?> entry : results.entrySet()) {
+						    //System.out.println("printing");
+						    Writer output = outMap.get(entry.getKey());
+						    synchronized (output) {
+						        try {
+							        output.write(entry.getKey() + ", " + start + ", " + stop + ", ");
+							        writeResults(entry.getValue(), output);
+							        output.write("\n");
+							        output.flush();
+						        } catch (IOException e) {
+							        // TODO Auto-generated catch block
+							        e.printStackTrace();
+						        }
+						        //System.out.println("printed");
 
-						}
+						    }
+
+						}*/
+						return results;
 
 					}
-
 				};
-				if (exec == null) {
-					worker.run();
-				} else {
-					boolean submitted = false;
-					while (!submitted) {
-						try {
-							exec.execute(worker);
-							submitted = true;
-						} catch (RejectedExecutionException e) {
+				if (completionService == null) {
+					Map<String, RealVector> results;
+					try {
+						results = worker.call();
+
+						for (Entry<String, RealVector> entry : results.entrySet()) {
+							//System.out.println("printing");
+							Writer output = outMap.get(entry.getKey());
 							try {
-								Thread.sleep(WAIT_TIME);
-							} catch (InterruptedException e1) {
+								//output.write(entry.getKey() + ", ");// + start + ", " + stop + ", ");
+								writeResults(entry.getValue(), output);
+								output.write("\n");
+								output.flush();
+							} catch (IOException e) {
 								// TODO Auto-generated catch block
-								e1.printStackTrace();
+								e.printStackTrace();
 							}
 						}
+						//System.out.println("printed");
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				} else {
+					try {
+						completionService.submit(worker);
+						futureCount++;
+					} catch (RejectedExecutionException e) {
+						e.printStackTrace();
 					}
 				}
 				//System.out.println("Executing: " + currInterval);
 
 			}
-			while (((ThreadPoolExecutor) exec).getActiveCount() > 0) {
+			while (futureCount > 0) {
+				Future<Map<String, RealVector>> resultsFuture;
 				try {
-					Thread.sleep(WAIT_TIME);
-				} catch (InterruptedException e) {
+					resultsFuture = completionService.take();
+					futureCount--;
+					if (resultsFuture.isCancelled()) {
+						System.err.println("Task cancelled");
+						continue;
+					}
+					Map<String, RealVector> results = resultsFuture.get();
+					for (Entry<String, RealVector> entry : results.entrySet()) {
+						//System.out.println("printing");
+						Writer output = outMap.get(entry.getKey());
+						try {
+							//output.write(entry.getKey() + ", ");// + start + ", " + stop + ", ");
+							writeResults(entry.getValue(), output);
+							output.write("\n");
+							output.flush();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						//System.out.println("printed");
+
+					}
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ExecutionException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
 			}
+			//System.out.println("All threads have finished");
+			//System.out.println("closing output");
 			for (Writer output : outMap.values()) {
-				output.close();
+				synchronized (output) {
+					output.flush();
+					output.close();
+				}
+
 			}
 
 		}
 	}
 
 	public static void writeResults(Object value, Writer writer) throws IOException {
-		if (value instanceof Collection) {
+		if (value instanceof List) {
 			boolean first = true;
-			for (Object item : (Collection) value) {
+			for (Object item : (List) value) {
 				if (!first)
 					writer.write(", ");
 				writeResults(item, writer);
+				first = false;
+			}
+		} else if (value instanceof ArrayRealVector) {
+			boolean first = true;
+			for (double item : ((ArrayRealVector) value).getData()) {
+				if (!first)
+					writer.write(", ");
+				writer.write("" + item);
 				first = false;
 			}
 		} else {

@@ -3,6 +3,9 @@ package net.sf.eventgraphj.analysis;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.math.linear.ArrayRealVector;
+import org.apache.commons.math.linear.RealVector;
+
 import edu.uci.ics.jung.algorithms.scoring.BetweennessCentrality;
 import edu.uci.ics.jung.algorithms.scoring.DegreeScorer;
 import edu.uci.ics.jung.algorithms.scoring.PageRank;
@@ -25,7 +28,7 @@ import edu.uci.ics.jung.graph.Graph;
  * @param <E>
  * @param <R>
  */
-public abstract class VertexScoreAnalysis<V, E, R> implements NetworkAnalysis<V, E, Graph<V, E>, List<R>> {
+public abstract class VertexScoreAnalysis<V, E> implements NetworkAnalysis<V, E, Graph<V, E>, RealVector> {
 
 	final private List<V> nodes;
 
@@ -54,12 +57,13 @@ public abstract class VertexScoreAnalysis<V, E, R> implements NetworkAnalysis<V,
 	}
 
 	@Override
-	public List<R> analyze(Graph<V, E> graph) {
-		VertexScorer<V, R> scorer = createScorer(graph);
-		List<R> values = new ArrayList<R>();
+	public RealVector analyze(Graph<V, E> graph) {
+		VertexScorer<V, ? extends Number> scorer = createScorer(graph);
+		RealVector values = new ArrayRealVector(nodes.size());
+		int nodeIdx = 0;
 		for (V vertex : nodes) {
 
-			R score = null;
+			Number score = null;
 			try {
 				score = scorer.getVertexScore(vertex);
 			} catch (IllegalArgumentException e) { // thrown if you ask for the
@@ -68,16 +72,22 @@ public abstract class VertexScoreAnalysis<V, E, R> implements NetworkAnalysis<V,
 				// graph
 				e.printStackTrace();
 			}
-			values.add(score);
+			if (score == null) {
+				values.setEntry(nodeIdx, 0);
+			} else {
+				//System.out.println(score + ", ");
+				values.setEntry(nodeIdx, score.doubleValue());
+			}
+			nodeIdx++;
 		}
 
 		return values;
 	}
 
-	public abstract VertexScorer<V, R> createScorer(Graph<V, E> graph);
+	public abstract VertexScorer<V, ? extends Number> createScorer(Graph<V, E> graph);
 
-	public static <V, E> VertexScoreAnalysis<V, E, Double> newBetweennessAnalysis(Graph<V, E> graph) {
-		return new VertexScoreAnalysis<V, E, Double>(graph) {
+	public static <V, E> VertexScoreAnalysis<V, E> newBetweennessAnalysis(Graph<V, E> graph) {
+		return new VertexScoreAnalysis<V, E>(graph) {
 			@Override
 			public VertexScorer<V, Double> createScorer(Graph<V, E> graph) {
 				return new BetweennessCentrality<V, E>(graph);
@@ -86,8 +96,8 @@ public abstract class VertexScoreAnalysis<V, E, R> implements NetworkAnalysis<V,
 		};
 	}
 
-	public static <V, E> VertexScoreAnalysis<V, E, Integer> newDegreeAnalysis(Graph<V, E> graph) {
-		return new VertexScoreAnalysis<V, E, Integer>(graph) {
+	public static <V, E> VertexScoreAnalysis<V, E> newDegreeAnalysis(Graph<V, E> graph) {
+		return new VertexScoreAnalysis<V, E>(graph) {
 			@Override
 			public VertexScorer<V, Integer> createScorer(Graph<V, E> graph) {
 				return new DegreeScorer<V>(graph);
@@ -96,8 +106,8 @@ public abstract class VertexScoreAnalysis<V, E, R> implements NetworkAnalysis<V,
 		};
 	}
 
-	public static <V, E> VertexScoreAnalysis<V, E, Double> newClosenessAnalysis(Graph<V, E> graph) {
-		return new VertexScoreAnalysis<V, E, Double>(graph) {
+	public static <V, E> VertexScoreAnalysis<V, E> newClosenessAnalysis(Graph<V, E> graph) {
+		return new VertexScoreAnalysis<V, E>(graph) {
 			@Override
 			public VertexScorer<V, Double> createScorer(Graph<V, E> graph) {
 				return new InverseDistanceCentralityScorer<V, E>(graph);
@@ -106,9 +116,9 @@ public abstract class VertexScoreAnalysis<V, E, R> implements NetworkAnalysis<V,
 		};
 	}
 
-	public static <V, E> VertexScoreAnalysis<V, E, Double> newPageRankAnalysis(Graph<V, E> graph,
+	public static <V, E> VertexScoreAnalysis<V, E> newPageRankAnalysis(Graph<V, E> graph,
 	        final double restartProbability) {
-		return new VertexScoreAnalysis<V, E, Double>(graph) {
+		return new VertexScoreAnalysis<V, E>(graph) {
 			@Override
 			public VertexScorer<V, Double> createScorer(Graph<V, E> graph) {
 				return new PageRank<V, E>(graph, restartProbability);
@@ -117,7 +127,7 @@ public abstract class VertexScoreAnalysis<V, E, R> implements NetworkAnalysis<V,
 		};
 	}
 
-	public static <V, E> VertexScoreAnalysis<V, E, Double> newPageRankAnalysis(Graph<V, E> graph) {
+	public static <V, E> VertexScoreAnalysis<V, E> newPageRankAnalysis(Graph<V, E> graph) {
 		return newPageRankAnalysis(graph, .15);
 	}
 }

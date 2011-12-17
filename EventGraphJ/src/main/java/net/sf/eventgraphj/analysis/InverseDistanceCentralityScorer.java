@@ -39,8 +39,8 @@ import edu.uci.ics.jung.graph.Hypergraph;
  * 
  * @see DistanceCentralityScorer
  */
-public class InverseDistanceCentralityScorer<V, E> extends
-		DistanceCentralityScorer<V, E> implements VertexScorer<V, Double> {
+public class InverseDistanceCentralityScorer<V, E> extends DistanceCentralityScorer<V, E> implements
+        VertexScorer<V, Double> {
 
 	/**
 	 * Creates an instance with the specified graph, distance metric, and
@@ -55,8 +55,7 @@ public class InverseDistanceCentralityScorer<V, E> extends
 	 *            Specifies whether distances from a vertex to itself should be
 	 *            included in its score.
 	 */
-	public InverseDistanceCentralityScorer(Hypergraph<V, E> graph,
-			Distance<V> distance, boolean ignore_self_distances) {
+	public InverseDistanceCentralityScorer(Hypergraph<V, E> graph, Distance<V> distance, boolean ignore_self_distances) {
 		super(graph, distance, true, true, ignore_self_distances);
 	}
 
@@ -73,11 +72,9 @@ public class InverseDistanceCentralityScorer<V, E> extends
 	 *            Specifies whether distances from a vertex to itself should be
 	 *            included in its score.
 	 */
-	public InverseDistanceCentralityScorer(Hypergraph<V, E> graph,
-			Transformer<E, ? extends Number> edge_weights,
-			boolean ignore_self_distances) {
-		this(graph, new DijkstraDistance<V, E>(graph, edge_weights),
-				ignore_self_distances);
+	public InverseDistanceCentralityScorer(Hypergraph<V, E> graph, Transformer<E, ? extends Number> edge_weights,
+	        boolean ignore_self_distances) {
+		this(graph, new DijkstraDistance<V, E>(graph, edge_weights), ignore_self_distances);
 	}
 
 	/**
@@ -89,8 +86,7 @@ public class InverseDistanceCentralityScorer<V, E> extends
 	 *            The edge weights to use for specifying the distance between
 	 *            pairs of vertices.
 	 */
-	public InverseDistanceCentralityScorer(Hypergraph<V, E> graph,
-			Transformer<E, ? extends Number> edge_weights) {
+	public InverseDistanceCentralityScorer(Hypergraph<V, E> graph, Transformer<E, ? extends Number> edge_weights) {
 		this(graph, new DijkstraDistance<V, E>(graph, edge_weights), true);
 	}
 
@@ -118,8 +114,7 @@ public class InverseDistanceCentralityScorer<V, E> extends
 			return value;
 		}
 
-		Map<V, Number> v_distances = new HashMap<V, Number>(
-				this.distance.getDistanceMap(v));
+		Map<V, Number> v_distances = new HashMap<V, Number>(this.distance.getDistanceMap(v));
 		if (this.ignore_self_distances) {
 			v_distances.remove(v);
 		}
@@ -127,8 +122,7 @@ public class InverseDistanceCentralityScorer<V, E> extends
 		// if we don't ignore missing distances and there aren't enough
 		// distances, output null (shortcut)
 		if (!this.ignore_missing) {
-			int num_dests = this.graph.getVertexCount()
-					- (this.ignore_self_distances ? 1 : 0);
+			int num_dests = this.graph.getVertexCount() - (this.ignore_self_distances ? 1 : 0);
 			if (v_distances.size() != num_dests) {
 				this.output.put(v, -1.0);
 				return null;
@@ -154,7 +148,7 @@ public class InverseDistanceCentralityScorer<V, E> extends
 			count++;
 		}
 		value = sum;
-		if (this.averaging) {
+		if (this.averaging && count > 0) {
 			value /= count;
 		}
 		this.output.put(v, value);

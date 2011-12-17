@@ -9,6 +9,9 @@ import net.sf.eventgraphj.comparable.EdgeEntry;
 import net.sf.eventgraphj.comparable.Interval;
 import net.sf.eventgraphj.comparable.NavigableGraph;
 
+import org.apache.commons.math.linear.ArrayRealVector;
+import org.apache.commons.math.linear.RealVector;
+
 /**
  * Compares aggregate "snapshots" at a long time-scale to snapshots over the
  * same interval but at a smaller time-scale.
@@ -23,10 +26,8 @@ import net.sf.eventgraphj.comparable.NavigableGraph;
  * @param <V>
  * @param <E>
  */
-public class AggregationComparison<K extends Comparable<K>, V, E> extends
-        IterableNetworkAnalysis<K, V, E, List<Double>> {
+public class AggregationComparison<K extends Comparable<K>, V, E> extends IterableNetworkAnalysis<K, V, E, RealVector> {
 	protected Iterable<Interval<K>> smallIntervalIterable;
-	protected Iterable<Interval<K>> largeIntervalIterable;
 
 	protected NetworkComparison<V, EdgeEntry<K, V, E>, NavigableGraph<K, V, E>> compare;
 
@@ -46,12 +47,11 @@ public class AggregationComparison<K extends Comparable<K>, V, E> extends
 	        NetworkComparison<V, EdgeEntry<K, V, E>, NavigableGraph<K, V, E>> compare) {
 		super(largeIntervals);
 		this.smallIntervalIterable = smallIntervals;
-		this.largeIntervalIterable = largeIntervals;
 		this.compare = compare;
 	}
 
 	@Override
-	protected List<Double> doSubAnalysis(NavigableGraph<K, V, E> graph, K start, K stop) {
+	protected RealVector doSubAnalysis(NavigableGraph<K, V, E> graph, K start, K stop) {
 		Iterator<Interval<K>> smallIntervalIterator;
 		K stopSmall, startSmall;
 		Interval<K> smallInterval;
@@ -78,8 +78,10 @@ public class AggregationComparison<K extends Comparable<K>, V, E> extends
 			startSmall = smallInterval.getStart();
 			stopSmall = smallInterval.getFinish();
 		}
+		RealVector result = new ArrayRealVector(comparisons.toArray(new Double[0]));
+
 		//System.out.println("Compare Results: " + comparisons.toString());
-		return comparisons;
+		return result;
 	}
 
 }

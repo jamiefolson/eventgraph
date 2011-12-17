@@ -39,7 +39,7 @@ public class EdgeEntry<K extends Comparable<K>, V, E> extends EdgePair<K, E> imp
 		if (super.equals(other)) {
 			try {
 				EdgeEntry<K, V, E> edge = (EdgeEntry<K, V, E>) other;
-				if (this.edgetype == edge.edgetype && this.from.equals(this.from) && this.to.equals(this.to)) {
+				if (this.edgetype == edge.edgetype && this.from.equals(edge.from) && this.to.equals(edge.to)) {
 					return true;
 				}
 			} catch (ClassCastException e) {

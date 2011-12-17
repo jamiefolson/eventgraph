@@ -3,6 +3,8 @@ package net.sf.eventgraphj.analysis;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.apache.commons.math.linear.RealVector;
+
 import edu.uci.ics.jung.graph.Graph;
 
 /**
@@ -21,26 +23,26 @@ import edu.uci.ics.jung.graph.Graph;
  * @param <E>
  */
 public class CompoundNetworkAnalysis<V, E, G extends Graph<V, E>> implements
-        NetworkAnalysis<V, E, G, HashMap<String, Object>> {
+        NetworkAnalysis<V, E, G, HashMap<String, RealVector>> {
 
-	HashMap<String, NetworkAnalysis<V, E, ? super G, ?>> analyses;
+	HashMap<String, NetworkAnalysis<V, E, ? super G, RealVector>> analyses;
 
 	public CompoundNetworkAnalysis() {
-		analyses = new HashMap<String, NetworkAnalysis<V, E, ? super G, ?>>();
+		analyses = new HashMap<String, NetworkAnalysis<V, E, ? super G, RealVector>>();
 	}
 
 	@Override
-	public HashMap<String, Object> analyze(G graph) {
-		HashMap<String, Object> compoundResults = new HashMap<String, Object>();
-		for (Entry<String, NetworkAnalysis<V, E, ? super G, ?>> entry : analyses.entrySet()) {
-			NetworkAnalysis<V, E, ? super G, ?> analysis = entry.getValue();
-			Object result = analysis.analyze(graph);
+	public HashMap<String, RealVector> analyze(G graph) {
+		HashMap<String, RealVector> compoundResults = new HashMap<String, RealVector>();
+		for (Entry<String, NetworkAnalysis<V, E, ? super G, RealVector>> entry : analyses.entrySet()) {
+			NetworkAnalysis<V, E, ? super G, RealVector> analysis = entry.getValue();
+			RealVector result = analysis.analyze(graph);
 			compoundResults.put(entry.getKey(), result);
 		}
 		return compoundResults;
 	}
 
-	public void addAnalysis(String analysisId, NetworkAnalysis<V, E, ? super G, ?> analysis) {
+	public void addAnalysis(String analysisId, NetworkAnalysis<V, E, ? super G, RealVector> analysis) {
 		analyses.put(analysisId, analysis);
 	}
 
