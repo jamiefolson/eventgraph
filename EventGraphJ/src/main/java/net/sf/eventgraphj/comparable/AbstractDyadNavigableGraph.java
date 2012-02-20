@@ -183,6 +183,8 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E> 
 			return this.stop;
 		}
 
+		
+		
 	}
 
 	/**
@@ -715,5 +717,15 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E> 
 	@Override
 	public NavigableGraph<K, V, E> headNetwork(K stop) {
 		return new DyadNavigableSubGraph<K, V, E>(this, null, stop);
+	}
+	@Override
+	public Collection<Pair<V>> getPairs() {
+		Collection<DyadEdgeMap<K, V, E>> edges = mapGraph.getEdges();
+		Collection<Pair<V>> allPairs = new ArrayList<Pair<V>>(edges.size());
+		for (DyadEdgeMap<K, V, E> edge : edges) {
+			Pair<V> endpoints = mapGraph.getEndpoints(edge);
+			allPairs.add(endpoints);
+		}
+	return allPairs;
 	}
 }

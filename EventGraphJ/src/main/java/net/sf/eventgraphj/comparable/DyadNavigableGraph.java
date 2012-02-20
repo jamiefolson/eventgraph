@@ -1,6 +1,7 @@
 package net.sf.eventgraphj.comparable;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 

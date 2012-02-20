@@ -17,7 +17,6 @@ import net.sf.eventgraphj.comparable.EdgeEntry;
 import net.sf.eventgraphj.comparable.IncrementIterable;
 import net.sf.eventgraphj.comparable.Interval;
 import net.sf.eventgraphj.comparable.IntervalWrapperIterable;
-import net.sf.eventgraphj.comparable.LoadGraph;
 import net.sf.eventgraphj.comparable.NavigableGraph;
 import net.sf.eventgraphj.comparable.NavigableGraphModule;
 

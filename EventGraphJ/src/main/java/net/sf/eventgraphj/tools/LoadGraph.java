@@ -1,4 +1,4 @@
-package net.sf.eventgraphj.comparable;
+package net.sf.eventgraphj.tools;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +12,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
+import net.sf.eventgraphj.comparable.NavigableGraph;
+import net.sf.eventgraphj.comparable.NavigableGraphModule;
 import net.sf.eventgraphj.comparable.NavigableGraphModule.EdgeNavigableModule;
 
 import com.google.inject.Guice;
@@ -74,7 +76,7 @@ public class LoadGraph {
 		return graph;
 	}
 
-	public static <V> net.sf.eventgraphj.comparable.NavigableGraph<Long, V, String> loadCsvGraph(
+	public static <V> net.sf.eventgraphj.comparable.NavigableGraph<Long, V, Long> loadCsvGraph(
 			String filename, int fromColumn, int toColumn, int dateColumn,
 			SimpleDateFormat dateFormat, Class<V> vertexType,
 			boolean hasHeader, String separatorStr)
@@ -86,7 +88,7 @@ public class LoadGraph {
 				dateColumn, dateFormat, vertexType, hasHeader, separatorStr);
 	}
 
-	public static <V> net.sf.eventgraphj.comparable.NavigableGraph<Long, V, String> loadCsvGraph(
+	public static <V> net.sf.eventgraphj.comparable.NavigableGraph<Long, V, Long> loadCsvGraph(
 			Injector inject, String filename, int fromColumn, int toColumn,
 			int dateColumn, SimpleDateFormat dateFormat, Class<V> vertexType,
 			boolean hasHeader, String separatorStr)
@@ -94,7 +96,7 @@ public class LoadGraph {
 			IllegalAccessException, InvocationTargetException,
 			FileNotFoundException, SecurityException, NoSuchMethodException,
 			ParseException {
-		NavigableGraph<Long, V, String> graph = inject
+		NavigableGraph<Long, V, Long> graph = inject
 				.getInstance(NavigableGraph.class);
 
 		Constructor<V> contructVertex = vertexType.getConstructor(String.class);

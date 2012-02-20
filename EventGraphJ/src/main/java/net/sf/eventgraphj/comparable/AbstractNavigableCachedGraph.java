@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.MultiGraph;
@@ -13,22 +14,7 @@ import edu.uci.ics.jung.graph.util.Pair;
 public abstract class AbstractNavigableCachedGraph<K extends Comparable<K>, V, E> extends BaseNavigableGraph<K, V, E>
         implements MultiGraph<V, EdgeEntry<K, V, E>>, Graph<V, EdgeEntry<K, V, E>>, NavigableGraph<K, V, E>,
         Serializable {
-	public static class EdgeData<K, V, E> {
-		public final K key;
-		public final V from;
-		public final V to;
-		public final E edge;
-		public final EdgeType type;
-
-		public EdgeData(K key, V from, V to, E edge, EdgeType type) {
-			super();
-			this.key = key;
-			this.from = from;
-			this.to = to;
-			this.edge = edge;
-			this.type = type;
-		}
-	}
+	
 
 	protected Graph<V, EdgeEntry<K, V, E>> cachedGraph;
 
@@ -543,5 +529,16 @@ public abstract class AbstractNavigableCachedGraph<K extends Comparable<K>, V, E
 	@Override
 	public int getEdgeCount(EdgeType edge_type) {
 		return this.cachedGraph.getEdgeCount(edge_type);
+	}
+	
+	public Collection<Pair<V>> getPairs(){
+		Collection<Pair<V>> allPairs = new HashSet<Pair<V>>();
+		for (V from : cachedGraph.getVertices()){
+			for (V to : cachedGraph.getNeighbors(from)){
+				allPairs.add(new Pair<V>(from,to));
+			}
+		}
+		
+		return allPairs;
 	}
 }

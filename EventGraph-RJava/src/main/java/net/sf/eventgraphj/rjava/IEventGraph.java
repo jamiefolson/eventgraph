@@ -1,4 +1,4 @@
-package net.eventgraphj.rjava;
+package net.sf.eventgraphj.rjava;
 
 import net.sf.eventgraphj.comparable.NavigableGraph;
 import net.sourceforge.jannotater.RJava;
@@ -16,9 +16,15 @@ public interface IEventGraph extends NavigableGraph<Long, Long, Long> {
 	@RJava
 	public IEventGraph tailNetwork(long start);
 
+	/**
+	 * @param stop
+	 * @return
+	 */
 	@RJava
 	public IEventGraph headNetwork(long stop);
 
-	@RJava
-	long[][] getPairs();
+	@RJava(rName = "getPairs",rCode = "{t(sapply("+RJava.RETURN_VARIABLE+",.jevalArray))}")
+	long[][] getPairArray();
+	
+	
 }

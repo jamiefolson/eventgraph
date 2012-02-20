@@ -19,6 +19,7 @@ public class NavigableGraphModule extends AbstractModule {
 
 	public static final Injector BASIC_NAVIGABLE = Guice.createInjector(new BasicNavigableModule());
 
+	
 	public static class EdgeNavigableModule extends NavigableGraphModule {
 		@Override
 		protected void configure() {

@@ -7,7 +7,6 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 
-import net.sf.eventgraphj.comparable.LoadGraph;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;

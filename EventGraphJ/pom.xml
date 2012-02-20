@@ -9,12 +9,11 @@
     <version>1.0-SNAPSHOT</version>
   </parent>
   <artifactId>EventGraphJ</artifactId>
-  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
    <name>EventGraph Data Model</name>
 
-   <dependencies>
-<dependency>
+  <dependencies>
+  <dependency>
   <groupId>org.apache.commons</groupId>
   <artifactId>commons-math</artifactId>
   <version>2.2</version>
@@ -23,11 +22,6 @@
   <groupId>junit</groupId>
   <artifactId>junit</artifactId>
   <version>4.8.2</version>
-</dependency>
-<dependency>
-  <groupId>net.sourceforge.jannotater</groupId>
-  <artifactId>jannotater</artifactId>
-  <version>1.0-SNAPSHOT</version>
 </dependency>
 <dependency>
   <groupId>net.sf.jung</groupId>
@@ -87,6 +81,11 @@
   <artifactId>guice</artifactId>
   <version>1.0</version>
 </dependency>
+<dependency>
+  <groupId>net.sourceforge.jannotater</groupId>
+  <artifactId>jannotater-core</artifactId>
+  <version>1.0-SNAPSHOT</version>
+</dependency>
 <!-- using junit instead of testng
 <dependency>
   <groupId>org.testng</groupId>
@@ -112,23 +111,6 @@
       <target>1.6</target>
     </configuration>
   </plugin>
-  <plugin>
-    <artifactId>maven-assembly-plugin</artifactId>
-    <configuration>
-    <descriptorRefs>
-      <descriptorRef>jar-with-dependencies</descriptorRef>
-    </descriptorRefs>
-    </configuration>
-    <executions>
-      <execution>
-        <id>make-my-jar-with-dependencies</id>
-        <phase>package</phase>
-        <goals>
-          <goal>single</goal>
-        </goals>
-      </execution>
-    </executions>
-  </plugin>
 <!-- using junit instead of testng
                   <plugin>
                               <groupId>org.apache.maven.plugins</groupId>
@@ -145,12 +127,12 @@
                                 </configuration>
                         </plugin>
 						-->
-                </plugins>
-        </build>
-		<pluginRepositories>
-                <pluginRepository>
-                        <id>apache.snapshots</id>
-                        <url>http://people.apache.org/repo/m2-snapshot-repository/</url>
-                </pluginRepository>
-        </pluginRepositories>
+</plugins>
+</build>
+<pluginRepositories>
+  <pluginRepository>
+    <id>apache.snapshots</id>
+    <url>http://people.apache.org/repo/m2-snapshot-repository/</url>
+  </pluginRepository>
+</pluginRepositories>
 </project>

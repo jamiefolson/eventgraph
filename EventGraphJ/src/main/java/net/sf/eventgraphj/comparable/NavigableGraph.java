@@ -1,10 +1,14 @@
 package net.sf.eventgraphj.comparable;
 
+import java.util.Collection;
+import java.util.Map.Entry;
+
 import net.sourceforge.jannotater.RJava;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.Hypergraph;
 import edu.uci.ics.jung.graph.MultiGraph;
 import edu.uci.ics.jung.graph.util.EdgeType;
+import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * An extension of the Graph API to accommodate edges that are ordered by some
@@ -571,5 +575,7 @@ public interface NavigableGraph<K extends Comparable<K>, V, E> extends MultiGrap
 	public boolean addEdge(K key, V v1, V v2, E edgevalue);
 
 	public boolean addEdge(K key, V v1, V v2, E edgevalue, EdgeType edge_type);
+	
+	public Collection<Pair<V>> getPairs();
 
 }

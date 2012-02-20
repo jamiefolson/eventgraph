@@ -1,9 +1,21 @@
-package net.eventgraphj.rjava;
+package net.sf.eventgraphj.rjava;
+
+import java.io.FileNotFoundException;
+import java.lang.reflect.InvocationTargetException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+
+import com.google.inject.Guice;
+
+import edu.uci.ics.jung.graph.util.Pair;
 
 import net.sf.eventgraphj.comparable.DyadNavigableGraph;
 import net.sf.eventgraphj.comparable.NavigableGraphModule;
 import net.sf.eventgraphj.comparable.GraphProvider;
 import net.sf.eventgraphj.comparable.MapProvider;
+import net.sf.eventgraphj.comparable.NavigableGraphModule.EdgeNavigableModule;
+import net.sf.eventgraphj.tools.LoadGraph;
 import net.sourceforge.jannotater.RJava;
 
 public class EventGraph extends DyadNavigableGraph<Long, Long, Long> implements
@@ -51,7 +63,7 @@ public class EventGraph extends DyadNavigableGraph<Long, Long, Long> implements
 		}
 
 		@Override
-		public long[][] getPairs() {
+		public long[][] getPairArray() {
 			// TODO Auto-generated method stub
 			return null;
 		}
@@ -95,9 +107,24 @@ public class EventGraph extends DyadNavigableGraph<Long, Long, Long> implements
 	}
 
 	@Override
-	public long[][] getPairs() {
-		// TODO Auto-generated method stub
-		return null;
+	public long[][] getPairArray() {
+		Collection<Pair<Long>> objPairs = this.getPairs();
+		long[][] pairMatrix = new long[objPairs.size()][2];
+		int pairIdx = 0;
+		for (Pair<Long> pair : objPairs){
+			pairMatrix[pairIdx][0] = pair.getFirst();
+			pairMatrix[pairIdx][1] = pair.getSecond();
+			pairIdx++;
+		}
+		return pairMatrix;
+	}
+	
+	public static EventGraph fromCSV(String filename, int fromColumn, int toColumn, int dateColumn,boolean hasHeader,
+			SimpleDateFormat dateFormat,
+			String separatorStr) throws IllegalArgumentException, FileNotFoundException, SecurityException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ParseException{
+		return (EventGraph) LoadGraph.loadCsvGraph(Guice
+				.createInjector(new NavigableGraphModule.EventGraphModule()),filename, fromColumn, toColumn, dateColumn, dateFormat, Long.class,
+		        hasHeader, separatorStr);
 	}
 
 }
