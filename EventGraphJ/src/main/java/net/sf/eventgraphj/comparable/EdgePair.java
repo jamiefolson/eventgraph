@@ -67,7 +67,7 @@ public class EdgePair<K extends Comparable<K>, V> implements Entry<K, V>,
 		}
 		int keyHash = (this.key == null ? 0 : this.key.hashCode());
 		int valueHash = (this.value == null ? 0 : this.value.hashCode());
-		return keyHash ^ valueHash;
+		return 37 * keyHash + valueHash;
 
 	}
 

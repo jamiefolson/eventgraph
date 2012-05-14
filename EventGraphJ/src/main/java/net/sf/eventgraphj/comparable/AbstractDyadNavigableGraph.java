@@ -723,6 +723,7 @@ public abstract class AbstractDyadNavigableGraph<K extends Comparable<K>, V, E> 
 		Collection<DyadEdgeMap<K, V, E>> edges = mapGraph.getEdges();
 		Collection<Pair<V>> allPairs = new ArrayList<Pair<V>>(edges.size());
 		for (DyadEdgeMap<K, V, E> edge : edges) {
+			if(edge.map.size()==0)continue;
 			Pair<V> endpoints = mapGraph.getEndpoints(edge);
 			allPairs.add(endpoints);
 		}

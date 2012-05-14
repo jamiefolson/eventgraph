@@ -49,6 +49,8 @@ public class NavigableGraphModule extends AbstractModule {
 		this.bind(NavigableMap.class).to(MyTreeMap.class);
 		this.bind(Graph.class).annotatedWith(Names.named("EdgeGraph")).to(SparseGraph.class);
 		this.bind(GraphProvider.class).annotatedWith(Names.named("EdgeGraph")).to(SparseGraphProvider.class);
+		this.bind(Graph.class).to(SparseGraph.class);
+		this.bind(GraphProvider.class).to(SparseGraphProvider.class);
 		this.bind(MapProvider.class).to(MyMapProvider.class);
 	}
 

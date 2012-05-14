@@ -3,6 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  
   <parent>
     <groupId>net.sourceforge.eventgraph</groupId>
     <artifactId>eventgraph</artifactId>
@@ -10,120 +11,61 @@
   </parent>
   <artifactId>EventGraphR</artifactId>
   <packaging>jannotater</packaging>
-  <name>EventGraph Data Model</name>
+  <name>EventGraph R API</name>
 
-  <dependencies>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>EventGraphJ</artifactId>
-    <version>${project.version}</version>
-  </dependency>
-  <dependency>
-    <groupId>${project.groupId}</groupId>
-    <artifactId>EventGraph-RJava</artifactId>
-    <version>${project.version}</version>
-  </dependency> 
-  <dependency>
-    <groupId>org.apache.commons</groupId>
-    <artifactId>commons-math</artifactId>
-    <version>2.2</version>
-  </dependency>
-  <dependency>
-    <groupId>net.sourceforge.jannotater</groupId>
+  
+<dependencies>
+<!-- Module dependencies
+  <dependency> 
+    <groupId>sourceforge.jannotater<groupId>
     <artifactId>jannotater-core</artifactId>
     <version>1.0-SNAPSHOT</version>
   </dependency>
-  <dependency>
-    <groupId>net.sf.jung</groupId>
-    <artifactId>jung-api</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
-    <classifier>sources</classifier>
-  </dependency>
-  <dependency>
-    <groupId>net.sf.jung</groupId>
-    <artifactId>jung-graph-impl</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
-    <classifier>sources</classifier>
-  </dependency>
-  <dependency>
-    <groupId>net.sf.jung</groupId>
-    <artifactId>jung-algorithms</artifactId>
-    <version>2.0.2-SNAPSHOT</version>
-    <classifier>sources</classifier>
-  </dependency>
-  <dependency>
-    <groupId>net.sourceforge.collections</groupId>
-    <artifactId>collections-generic</artifactId>
-    <version>4.01</version>
-  </dependency>
-  <dependency>
-    <groupId>log4j</groupId>
-    <artifactId>log4j</artifactId>
-    <version>1.2.16</version>
-  </dependency>
-  <dependency>
-    <groupId>com.google.code.guice</groupId>
-    <artifactId>guice</artifactId>
-    <version>1.0</version>
-  </dependency>
-  <!-- using junit instead of testng
-  <dependency>
-    <groupId>org.testng</groupId>
-    <artifactId>testng</artifactId>
-    <version>5.14</version>
-    <scope>test</scope>
-  </dependency>
   -->
+  <dependency> 
+    <groupId>${project.groupId}</groupId>
+    <artifactId>EventGraph-RJava</artifactId>
+    <version>${project.version}</version>
+  </dependency>
 </dependencies>
+   
 <build>
-<sourceDirectory> ../EventGraph-RJava/src/main/java/ </sourceDirectory>
-<plugins>
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-dependency-plugin</artifactId>
-      <version>2.4</version>
-      <executions>
-        <execution>
-          <id>copy-dependencies</id>
-          <phase>initialize</phase>
-          <goals>
-            <goal>copy-dependencies</goal>
-          </goals>
-          <configuration>
-            <outputDirectory>${project.build.directory}/lib</outputDirectory>
-            <overWriteReleases>false</overWriteReleases>
-            <overWriteSnapshots>false</overWriteSnapshots>
-            <overWriteIfNewer>true</overWriteIfNewer>
-            <excludeTransitive>true</excludeTransitive>
-          </configuration>
-        </execution>
-        <execution>
-          <id>extract-javadoc</id>
-          <phase>initialize</phase>
-          <goals>
-            <goal>unpack</goal>
-          </goals>
-          <configuration>
-            <artifactItems>
-              <artifactItem>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>EventGraph-RJava</artifactId>
-                <type>jar</type>
-                <classifier>javadoc</classifier>
-                <overWrite>false</overWrite>
-                <outputDirectory>${project.build.directory}/lib/javadoc</outputDirectory>
-              </artifactItem>
-            </artifactItems>
-          </configuration>
-        </execution>
-      </executions>
-    </plugin>
+<sourceDirectory>../EventGraph-RJava/src/main/java/</sourceDirectory>
+  <plugins>
     <plugin>
       <groupId>net.sourceforge.jannotater</groupId>
       <artifactId>jannotater-maven-plugin</artifactId>
       <version>1.0-SNAPSHOT</version>
       <extensions>true</extensions>
     </plugin>
+    
+    <plugin>
+      <artifactId>maven-assembly-plugin</artifactId>
+      <version>2.3</version>
+      <dependencies>
+        <dependency>
+          <groupId>net.sourceforge.jannotater</groupId>
+          <artifactId>jannotater-assembly-descriptor</artifactId>
+          <version>1.0-SNAPSHOT</version>
+        </dependency>
+      </dependencies>
+      <executions>
+        <execution>
+          <id>assemble</id>
+          <phase>package</phase>
+          <goals>
+            <goal>single</goal>
+          </goals>
+          <configuration>
+            <descriptorRefs>
+              <descriptorRef>R-package</descriptorRef>
+            </descriptorRefs>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+<!--
+    -->
     <plugin>
       <groupId>org.apache.maven.plugins</groupId>
       <artifactId>maven-compiler-plugin</artifactId>
@@ -132,15 +74,11 @@
         <source>1.7</source>
         <target>1.7</target>
         <annotationProcessors>
-          <param>net.sourceforge.jannotater.ModernProcessor</param>
+          <param>net.sourceforge.jannotater.AnnotateRProcessor</param>
         </annotationProcessors>
-        <!--
-        <compilerArgument>proc:only</compilerArgument>
-        <fork>true</fork>
-        -->
         <proc>only</proc>
       </configuration>
     </plugin>
-</plugins>
+  </plugins>
 </build>
 </project>

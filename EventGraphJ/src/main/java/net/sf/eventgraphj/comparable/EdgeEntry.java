@@ -31,7 +31,11 @@ public class EdgeEntry<K extends Comparable<K>, V, E> extends EdgePair<K, E> imp
 
 	@Override
 	public int hashCode() {
-		return super.hashCode() ^ (this.from.hashCode() * this.to.hashCode()) * this.edgetype.hashCode();
+		int result =super.hashCode(); 
+		 result = 37*result + this.from.hashCode();
+		 result = 37*result + this.to.hashCode();
+		 result = 37*result + this.edgetype.hashCode();
+		 return result;
 	}
 
 	@Override

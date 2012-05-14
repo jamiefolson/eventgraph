@@ -5,26 +5,26 @@ import net.sourceforge.jannotater.RJava;
 
 public interface IEventGraph extends NavigableGraph<Long, Long, Long> {
 	@RJava
-	public void addEdge(long key, long from, long to);
+	public void addEdge(double key, double from, double to);
 
 	@RJava
-	public void addVertex(long vertex);
+	public void addVertex(double vertex);
 
 	@RJava
-	public IEventGraph subNetwork(long start, long stop);
+	public IEventGraph subNetwork(double start, double stop);
 
 	@RJava
-	public IEventGraph tailNetwork(long start);
+	public IEventGraph tailNetwork(double start);
 
 	/**
 	 * @param stop
 	 * @return
 	 */
 	@RJava
-	public IEventGraph headNetwork(long stop);
+	public IEventGraph headNetwork(double stop);
 
-	@RJava(rName = "getPairs",rCode = "{t(sapply("+RJava.RETURN_VARIABLE+",.jevalArray))}")
-	long[][] getPairArray();
+	@RJava(rName = "getPairs",postCall = "{t(sapply("+RJava.RETURN_VARIABLE+",.jevalArray))}")
+	double[][] getPairArray();
 	
 	
 }

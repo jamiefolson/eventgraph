@@ -27,24 +27,6 @@
   <groupId>net.sf.jung</groupId>
   <artifactId>jung-api</artifactId>
   <version>2.0.2-SNAPSHOT</version>
-  <classifier>sources</classifier>
-</dependency>
-<dependency>
-  <groupId>net.sf.jung</groupId>
-  <artifactId>jung-graph-impl</artifactId>
-  <version>2.0.2-SNAPSHOT</version>
-  <classifier>sources</classifier>
-  </dependency>
-<dependency>
-  <groupId>net.sf.jung</groupId>
-  <artifactId>jung-algorithms</artifactId>
-  <version>2.0.2-SNAPSHOT</version>
-  <classifier>sources</classifier>
-  </dependency>
-<dependency>
-  <groupId>net.sf.jung</groupId>
-  <artifactId>jung-api</artifactId>
-  <version>2.0.2-SNAPSHOT</version>
 </dependency>
 <dependency>
   <groupId>net.sf.jung</groupId>
@@ -110,6 +92,30 @@
       <source>1.6</source>
       <target>1.6</target>
     </configuration>
+  </plugin>
+  <plugin>
+    <artifactId>maven-assembly-plugin</artifactId>
+    <configuration>
+    <!--
+      <archive>
+        <manifest>
+          <mainClass>fully.qualified.MainClass</mainClass>
+        </manifest>
+      </archive>
+      -->
+      <descriptorRefs>
+        <descriptorRef>jar-with-dependencies</descriptorRef>
+      </descriptorRefs>
+    </configuration>
+    <executions>
+      <execution>
+        <id>make-my-jar-with-dependencies</id>
+        <phase>package</phase>
+        <goals>
+          <goal>single</goal>
+        </goals>
+      </execution>
+    </executions>
   </plugin>
 <!-- using junit instead of testng
                   <plugin>

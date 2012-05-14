@@ -32,19 +32,16 @@
     <groupId>net.sf.jung</groupId>
     <artifactId>jung-api</artifactId>
     <version>2.0.2-SNAPSHOT</version>
-    <classifier>sources</classifier>
   </dependency>
   <dependency>
     <groupId>net.sf.jung</groupId>
     <artifactId>jung-graph-impl</artifactId>
     <version>2.0.2-SNAPSHOT</version>
-    <classifier>sources</classifier>
   </dependency>
   <dependency>
     <groupId>net.sf.jung</groupId>
     <artifactId>jung-algorithms</artifactId>
     <version>2.0.2-SNAPSHOT</version>
-    <classifier>sources</classifier>
   </dependency>
   <dependency>
     <groupId>net.sourceforge.collections</groupId>
@@ -69,6 +66,26 @@
     <scope>test</scope>
   </dependency>
   -->
+
+  <!-- JRi/rJava dependencies
+  -->
+  <dependency>
+    <groupId>org.rosuda.JRI</groupId>
+    <artifactId>JRIEngine.jar</artifactId>
+    <version>0.9-3</version>
+  </dependency>
+  <dependency>
+    <groupId>org.rosuda.JRI</groupId>
+    <artifactId>REngine.jar</artifactId>
+    <version>0.9-3</version>
+  </dependency>
+  <dependency>
+    <groupId>org.rosuda.JRI</groupId>
+    <artifactId>JRI.jar</artifactId>
+    <version>0.9-3</version>
+  </dependency>
+
+
 </dependencies>
 <build>
 <plugins>
