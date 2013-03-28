@@ -1,0 +1,9 @@
+Package: EventGraphR
+Version: 0.1
+Type: Package
+Title: What the package does (short line)
+Date: 2013-03-27
+Author: Who wrote it
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line)
+License: What license is it under?
