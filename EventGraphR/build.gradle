@@ -1,0 +1,47 @@
+buildscript {
+	repositories {
+	  mavenLocal()
+	  mavenCentral()
+	}
+	dependencies {
+		classpath 'com.jfolson:gradle-plugin-rjava:0.1'
+		classpath 'com.jfolson:gradle-plugin-r:0.1'
+	}
+}
+  
+apply plugin: 'java'
+apply plugin: 'rjava'
+
+version = "0.1"
+repositories {
+    mavenCentral()
+    mavenLocal()
+    flatDir(dirs: 'lib')
+}
+
+dependencies {
+    rjava(project(":EventGraphR")){ transitive = true }
+	compile "org.rosuda.JRI:JRIEngine:0.9-3"
+	compile "org.rosuda.JRI:JRI:0.9-3"
+	compile "org.rosuda.JRI:REngine:0.9-3"
+	compile "com.jfolson:jannotater-rjava:0.1"
+    compile project(":EventGraph")
+    compile "org.apache.commons:commons-math:2.2"
+    compile "junit:junit:4.8.2"
+    compile "net.sf.jung:jung-api:2.0.2-SNAPSHOT"
+    compile "net.sf.jung:jung-graph-impl:2.0.2-SNAPSHOT"
+    compile "net.sf.jung:jung-algorithms:2.0.2-SNAPSHOT"
+    compile "net.sourceforge.collections:collections-generic:4.01"
+    compile "log4j:log4j:1.2.16"
+    compile "commons-cli:commons-cli:1.2"
+    compile "com.google.code.guice:guice:1.0"
+    compile "net.sourceforge.jannotater:jannotater-core:1.0-SNAPSHOT"
+    testCompile "org.testng:testng:5.14"
+    compile "jfree:jfreechart:1.0.13"
+}
+
+rpackage {
+  srcDir = project.file('pkg')
+  name = 'EventGraphR'
+}
+

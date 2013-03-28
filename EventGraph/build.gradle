@@ -1,0 +1,94 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+project.description = 'Data structure for dynamic graph data structures'
+project.targetCompatibility = 1.7
+project.sourceCompatibility = 1.7
+
+repositories {
+  mavenCentral()
+  mavenLocal()
+}
+
+dependencies {
+  compile "org.apache.commons:commons-math:2.2"
+  compile "junit:junit:4.8.2"
+  compile "net.sf.jung:jung-api:2.0.2-SNAPSHOT"
+  compile "net.sf.jung:jung-graph-impl:2.0.2-SNAPSHOT"
+  compile "net.sf.jung:jung-algorithms:2.0.2-SNAPSHOT"
+  compile "net.sourceforge.collections:collections-generic:4.01"
+  compile "log4j:log4j:1.2.16"
+  compile "commons-cli:commons-cli:1.2"
+  compile "com.googlecode.guice-junit4:guice-junit4-core:0.2"
+  compile "com.google.code.guice:guice:1.0"
+  compile "net.sourceforge.jannotater:jannotater-core:1.0-SNAPSHOT"
+  testCompile "org.testng:testng:5.14"
+  compile "jfree:jfreechart:1.0.13"
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from 'build/docs/javadoc'
+}
+ 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
+artifacts {
+    archives jar
+    archives javadocJar
+    archives sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signPom(deployment) }
+ 
+            repository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
+              authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+ 
+            pom.project {
+               name project.name
+               packaging 'jar'
+               description project.description
+               url 'http://github.com/jamiefolson/eventgraph/' 
+ 
+               scm {
+                   url 'scm:git@github.com:jamiefolson/eventgraph.git'
+                   connection 'scm:git@github.com:jamiefolson/eventgraph.git'
+                   developerConnection 'scm:git@github.com:jamiefolson/eventgraph.git'
+               }
+ 
+               licenses {
+                   license {
+                       name 'The Apache Software License, Version 2.0'
+                       url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                       distribution 'repo'
+                   }
+               }
+ 
+               developers {
+                   developer {
+                       id 'jamiefolson'
+                       name 'Jamie F Olson'
+                   }
+               }
+           }
+        }
+    }
+}
+
